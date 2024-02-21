@@ -1,86 +1,159 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import VehicleHealthReport from './HealthReport';
-import PeformanceAnalyzer from './PeformanceAnalyzer';
-import VehicleMonitoring from './.vscode/VehicleMonitoring';
-
-const Stack = createNativeStackNavigator();
-handlePress=()=>{
-  console.log("Butoon pressed")
-}
-
-function HomeScreen({ navigation }) {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.textStyle}>AUTOINSIGHT PRO</Text>
-      <TouchableOpacity style={styles.buttonStyle} onPress={() => navigation.navigate('HealthReport')}>
-        <Text style={styles.buttonText}>Health Report</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.buttonStyle} onPress={() => navigation.navigate('PeformanceAnalyzer')}>
-         <Text style={styles.buttonText}>Peformance analyzer</Text>
-      </TouchableOpacity>
-     
-     <TouchableOpacity  style={styles.buttonStyle}  onPress={() => navigation.navigate('VehicleMonitoring')}>
-      <Text style={styles.buttonText}>Vehicle Monitoring</Text>
-     </TouchableOpacity>
-
-     <TouchableOpacity style={styles.buttonStyle} onPress={handlePress}>
-         <Text style={styles.buttonText}>Health Report</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.buttonStyle} onPress={handlePress}>
-         <Text style={styles.buttonText}>Fuel Efficiency Tracker</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.buttonStyle} onPress={handlePress}>
-         <Text style={styles.buttonText}>Vehicle Maintenance Schedule</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.buttonStyle} onPress={handlePress}>
-         <Text style={styles.buttonText}>Collabarative Platform</Text>
-      </TouchableOpacity>
-
-    </View>
-  );
-}
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View, SafeAreaView ,TextInput,TouchableOpacity,Image} from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useState } from 'react';
 
 export default function App() {
+  const [licenseDate, setLicenseDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+
+  const handleLicenseDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || licenseDate;
+    setShowPicker(false);
+    setLicenseDate(currentDate);
+  };
+
+
+  const [InsuranceDate, setInsuranceDate] = useState(new Date());
+  
+
+  const handleInsuranceDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || InsuranceDate;
+    setShowPicker(false);
+    setInsuranceDate(currentDate);
+  };
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Welcome' }} />
-        <Stack.Screen name="HealthReport" component={VehicleHealthReport} options={{ title: 'Vehicle Health Report' }} />
-        <Stack.Screen name="PeformanceAnalyzer" component={PeformanceAnalyzer} options={{ title: 'Peformance Analyzer' }} />
-        <Stack.Screen name="VehicleMonitoring" component={VehicleMonitoring} options={{ title: 'VehicleMonitoring' }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.subView}>
+        <Text style={styles.heading}>Expiry Date Reminder</Text>
+
+        <Image
+          source={{uri: 'https://paceperformance.com/images/F147747039'}}
+          style={{width: 200, height: 250, marginBottom: 20}} // Adjust width and height as needed
+        />
+
+
+
+<Text style={styles.nrrText}>
+          Enter<Text style={styles.specialBlue}> License Expiration Date</Text>
+        </Text>
+
+        <TextInput
+          style={styles.inputBox}
+          placeholder='License Expiration Date'
+          onFocus={() => setShowPicker(true)}
+          value={licenseDate.toLocaleDateString()} // Display selected date in the input
+        />
+
+        {showPicker && (
+          <DateTimePicker
+            mode='date'
+            display='spinner'
+            value={licenseDate}
+            onChange={handleLicenseDateChange}
+          />
+        )}
+
+
+<Text style={styles.first}>Enter</Text>
+
+<Text style={styles.nrrText }>
+          Enter<Text style={styles.specialBlue}> Insurance Expiration Date</Text>
+        </Text>
+
+        
+        <TextInput
+          style={styles.inputBox}
+          placeholder='Insurance Expiration Date'
+          onFocus={() => setShowPicker(true)}
+          value={InsuranceDate.toLocaleDateString()} // Display selected date in the input
+        />
+
+        {showPicker && (
+          <DateTimePicker
+            mode='date'
+            display='spinner'
+            value={InsuranceDate}
+            onChange={handleInsuranceDateChange}
+          />
+        )}
+
+
+<Text style={styles.first}>Enter</Text>
+
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Set Reminder</Text>
+        </TouchableOpacity>
+
+       
+        <StatusBar style="auto" />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#333333',
+    backgroundColor: '#272829',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20
   },
-  textStyle: {
-    fontSize: 40,
-    color: 'white',
-    fontFamily: "Times New Roman"
+  subView: {
+    height: '90%', // 90% of screen height
+    width: '90%', // 90% of screen width
+    backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+  }, 
+  heading: {
+    paddingTop:50,
+    color: '#FFFFFF', // Adjust text color
+    fontWeight: 'bold',
+    fontSize: 26,
+    paddingBottom:10,
+  },
+
+  inputBox: {
+    width: 300,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 100,
+    paddingHorizontal: 16,
+    color: '#ffffff',
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    fontWeight: 'bold',
+    marginVertical: 16,
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  button: {
+    width: 250,
+    backgroundColor: '#3AB0FF',
+    borderRadius: 100,
+    marginVertical: 16,
+    paddingVertical: 10,
+    
   },
   buttonText: {
-    color: "white",
-    fontSize: 20,
+    color: '#ffffff',
+    fontSize: 16,
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
-  buttonStyle: {
-    marginTop: 20,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    backgroundColor: 'blue',
-    borderRadius: 25,
+  specialBlue: {
+    color: '#3AB0FF',
   },
+  nrText: {
+    color: '#ffffff',
+  },
+  nrrText: {
+    color: '#ffffff',
+    fontWeight: 'bold', 
+  },
+
+ first:{paddingTop:10,}
 });
