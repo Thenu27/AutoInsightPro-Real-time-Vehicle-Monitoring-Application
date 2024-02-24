@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import VehicleHealthReport from './HealthReport';
 import PeformanceAnalyzer from './PeformanceAnalyzer';
 import VehicleMonitoring from './.vscode/VehicleMonitoring';
+import VehiMoniScreen from './VehiMoniScreen';
 
 const Stack = createNativeStackNavigator();
 handlePress=()=>{
