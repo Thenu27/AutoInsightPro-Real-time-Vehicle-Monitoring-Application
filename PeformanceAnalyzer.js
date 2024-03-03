@@ -12,7 +12,6 @@ export default function PeformanceAnalyzer(){
 
     )
 }
-
 const styles = StyleSheet.create({
     container: {
       flex: 1,
