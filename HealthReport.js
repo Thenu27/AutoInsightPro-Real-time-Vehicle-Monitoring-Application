@@ -27,7 +27,7 @@ export default function HealthReport() {
   };
   const handlePress = async () => {
     try {
-        const response = await fetch('http://10.36.6.78:8080/api/generate-report');
+        const response = await fetch('http:// 10.31.11.167:8080/api/generate-report');
         const data = await response.text();
         console.log(data);
         setReportData(data); // Save the fetched report data to state
