@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import PeformaceAnalyzer from './PeformanceAnalyzer';
+
  
 export default function PeformanceAnalyzer(){
     return(
@@ -12,6 +12,7 @@ export default function PeformanceAnalyzer(){
 
     )
 }
+
 const styles = StyleSheet.create({
     container: {
       flex: 1,
