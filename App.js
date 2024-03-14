@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import VehicleHealthReport from './HealthReport';
-import PerformanceAnalyzer from './PeformanceAnalyzer'; 
+import PeformanceAnalyzer from './PeformanceAnalyzer'; 
 import VehicleMonitoring from './.vscode/VehicleMonitoring';
 import Settings from './Settings';
 
@@ -21,8 +21,8 @@ function HomeScreen({ navigation }) {
       <TouchableOpacity style={styles.buttonStyle} onPress={() => navigation.navigate('HealthReport')}>
         <Text style={styles.buttonText}>Health Report</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.buttonStyle} onPress={() => navigation.navigate('PerformanceAnalyzer')}>
-        <Text style={styles.buttonText}>Performance Analyzer</Text>
+      <TouchableOpacity style={styles.buttonStyle} onPress={() => navigation.navigate('PeformanceAnalyzer')}>
+        <Text style={styles.buttonText}>Peformance Analyzer</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.buttonStyle} onPress={() => navigation.navigate('VehicleMonitoring')}>
         <Text style={styles.buttonText}>Vehicle Monitoring</Text>
@@ -59,7 +59,7 @@ export default function App() {
           })}
         />
         <Stack.Screen name="HealthReport" component={VehicleHealthReport} options={{ title: 'Vehicle Health Report' }} />
-        <Stack.Screen name="PerformanceAnalyzer" component={PerformanceAnalyzer} options={{ title: 'Performance Analyzer' }} />
+        <Stack.Screen name="PeformanceAnalyzer" component={PeformanceAnalyzer} options={{ title: 'Peformance Analyzer' }} />
         <Stack.Screen name="VehicleMonitoring" component={VehicleMonitoring} options={{ title: 'Vehicle Monitoring' }} />
         <Stack.Screen name="Settings" component={Settings} options={{ title: 'Settings' }}/>
       </Stack.Navigator>
