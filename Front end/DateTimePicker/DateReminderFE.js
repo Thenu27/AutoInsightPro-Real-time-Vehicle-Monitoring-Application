@@ -42,20 +42,20 @@ export default function DateReminderFE() {
   };
 
   const setReminder = () => {
-    // Calculate the time until license and insurance expiry
-    const licenseDateTime = new Date(licenseDate.getFullYear(), licenseDate.getMonth(), licenseDate.getDate(), licenseTime.getHours(), licenseTime.getMinutes());
+    
+    const licenseDateTime = new Date(licenseDate.getFullYear(), licenseDate.getMonth(), licenseDate.getDate(), licenseTime.getHours(), licenseTime.getMinutes());// Calculate the time until license and insurance expiry
     const insuranceDateTime = new Date(insuranceDate.getFullYear(), insuranceDate.getMonth(), insuranceDate.getDate(), insuranceTime.getHours(), insuranceTime.getMinutes());
 
     const licenseTimeRemaining = licenseDateTime.getTime() - Date.now();
     const insuranceTimeRemaining = insuranceDateTime.getTime() - Date.now();
 
-    // Set reminder for license expiry
-    setTimeout(() => {
+    
+    setTimeout(() => {// /setting for License expiry date
       alert('License Expiry Reminder: Your license is about to expire!');
     }, licenseTimeRemaining); 
 
-    // Set reminder for insurance expiry
-    setTimeout(() => {
+    
+    setTimeout(() => {//setting for Insurance expiry date
       alert('Insurance Expiry Reminder: Your insurance is about to expire!');
     }, insuranceTimeRemaining);
   };
@@ -78,8 +78,7 @@ export default function DateReminderFE() {
     // Handle success response from backend
   })
   .catch(error => {
-    console.error('Error:', error);
-    // Handle any errors
+    console.error('Error:', error);//haddling any error out of scope    
   });
 
   return (
@@ -133,12 +132,12 @@ export default function DateReminderFE() {
             value={insuranceDate.toLocaleDateString()}
           />
           {showInsuranceDatePicker && (
-            <DateTimePicker
+            <DateTimePicker//upto date validation (checks currunt date)
               mode='date'
               display='spinner'
               value={insuranceDate}
               onChange={handleInsuranceDateChange}
-              minimumDate={new Date()} // Disable selecting past dates
+              minimumDate={new Date()} 
             />
           )}
           <TextInput
@@ -168,13 +167,13 @@ export default function DateReminderFE() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: {//main background stylings
     flex: 1,
     backgroundColor: '#272829',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  container3: {
+  container3: {//core container styling for lisence 
     width:"85%",
     flex: 1,
     backgroundColor: 'transparent',
@@ -185,7 +184,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 20,
   },
-  container4: {
+  container4: {//core container styling for Insu
     width:"85%",
     flex: 1,
     backgroundColor: 'transparent',
