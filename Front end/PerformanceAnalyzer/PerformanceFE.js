@@ -7,7 +7,7 @@ const chartConfig = {
   backgroundGradientFrom: "#272829",
   backgroundGradientTo: "#272829",
   decimalPlaces: 2,
-  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`, // White color with opacity
+  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`, //white colour opacity
   labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
   style: {
     borderRadius: 16
@@ -112,9 +112,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 10,
   },
-  spaceBetweenContainers: {
-    marginBottom: 10, // Adjust the spacing between containers as needed
-  },
+  
   scrollViewContent: {
     flexGrow: 1,
   },
