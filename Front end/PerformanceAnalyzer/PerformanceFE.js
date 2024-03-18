@@ -7,7 +7,7 @@ const chartConfig = {
   backgroundColor: "#272829",
   backgroundGradientFrom: "#272829",
   backgroundGradientTo: "#272829",
-  decimalPlaces: 2,
+  decimalPlaces: 0,
   color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`, //white colour opacity
   labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
   style: {
@@ -15,7 +15,8 @@ const chartConfig = {
   },
   propsForDots: {
     r: "0", // Remove dots                 
-  }
+  }, 
+ 
 };
 
 export default function PerformanceFE() {
@@ -29,60 +30,84 @@ export default function PerformanceFE() {
           <View>
             <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
               <View style={styles.horizontalContainer}>
-                <LineChart
-                  data={{
-                    labels: ["January", "February", "March", "April", "May", "June"],
-                    datasets: [
-                      {
-                        data: [1, 2, 3, 4, 5, 6, 7, 8,]
-                      }
-                    ]
-                  }}
-                  width={Dimensions.get("window").width - 40} // Adjusted width
-                  height={220}
-                  yAxisInterval={1}
-                  chartConfig={chartConfig}
-                  bezier={false}
-                  style={styles.bezierStyle}
-                />
-                <Text style={[styles.text, styles.specialBlue]}>Your Vehicle Speed.</Text>
+                
+              <View style={styles.mainContainner1}> 
+              <LineChart
+  data={{
+    labels: Array.from({ length: 12 }, (_, i) => `${i * 5 + 5}`), // Time labels for each 5-minute interval
+    datasets: [
+      {
+        data: [30, 40, 35, 50, 45, 60, 55, 65, 70, 75, 80, 85, 90, 85, 80, 75, 70, 65, 60, 55], // Example speed data for the first 20 minutes
+      },
+    ],
+  }}
+  width={Dimensions.get("window").width - 40} // Adjusted width
+  height={220}
+  yAxisInterval={10} // Adjust the interval according to your data range
+  chartConfig={chartConfig}
+  bezier={false}
+  style={styles.bezierStyle}
+/>
+
+
+                <Text style={[styles.chartdescrip,styles.specialBlue]}>Your Vehicle Speed.</Text>
+
+
+                <View style={styles.container5}>
+              <Text style={[styles.text, styles.specialBlue]}>Highest Vehicle Speed</Text>
+              <View style={styles.container4}>               
+              <Text style={styles.text5}>{/*add value */}</Text>
+              </View>
+            </View>
+
+            <View style={styles.container5}>
+              <Text style={[styles.text, styles.specialBlue]}>Highest Vehicle Speed</Text>
+              <View style={styles.container4}>               
+              <Text style={styles.text5}>{/*add value */}</Text>
+              </View>
+            </View>
+                </View>
+
               </View>
             </ScrollView>
 
+        <View style={styles.mainContainner2}>  
             <View style={styles.container5}>
               <Text style={[styles.text, styles.specialBlue]}>Engine RPM</Text>
               <View style={styles.container4}>               
-                <Text style={[styles.text, styles.specialBlue]}>{/*afd */}</Text>
+              <Text style={styles.text5}>{/*add value */}</Text>
               </View>
             </View>
 
             <View style={styles.container5}>
               <Text style={[styles.text, styles.specialBlue]}>Throttle Position</Text>
               <View style={styles.container4}>               
-                <Text style={[styles.text, styles.specialBlue]}>{/*afd */}</Text>
+              <Text style={styles.text5}>{/*add value */}</Text>
               </View>
             </View>
 
             <View style={styles.container5}>
               <Text style={[styles.text, styles.specialBlue]}>Engine Load</Text>
               <View style={styles.container4}>               
-                <Text style={[styles.text, styles.specialBlue]}>{/*afd */}</Text>
+              <Text style={styles.text5}>{/*add value */}</Text>
               </View>
             </View>
 
             <View style={styles.container5}>
               <Text style={[styles.text, styles.specialBlue]}>Coolent Temp.</Text>
               <View style={styles.container4}>               
-                <Text style={[styles.text, styles.specialBlue]}>{/*afd */}</Text>
+              <Text style={styles.text5}>{/*add value */}</Text>
               </View>
             </View>
 
             <View style={styles.container5}>
               <Text style={[styles.text, styles.specialBlue]}>Mass Air Flow</Text>
               <View style={styles.container4}>               
-                <Text style={[styles.text, styles.specialBlue]}>{/*afd */}</Text>
+                <Text style={styles.text5}>{/*add value */}</Text>
               </View>
-            </View>
+            </View>           
+
+        </View>
 
 
           </View>
@@ -133,6 +158,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
   },
+  text5: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    marginBottom: 10,
+    paddingLeft:10,
+    paddingRight:10,
+  },
+
   specialBlue: {
     color: '#3AB0FF',  
   },
@@ -149,5 +182,37 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginLeft: 10,
     //padding: 10,
+  },
+
+  mainContainner1: {
+    width:"100%",
+    flex: 1,
+    backgroundColor: 'transparent',
+    borderColor: '#3AB0FF',
+    alignItems: 'center',   
+   borderBottomWidth:1,
+   borderTopWidth:1,
+    justifyContent: 'center',    
+    padding:10,
+    marginBottom:20,
+  },
+
+  mainContainner2: {
+    width:"100%",
+    flex: 1,
+    backgroundColor: 'transparent',
+    borderColor: '#3AB0FF',
+    alignItems: 'center',
+    borderWidth: 1,   
+    justifyContent: 'center',
+    borderRadius: 20,
+    padding:10,
+    marginBottom:20,
+  },
+  chartdescrip:{
+    color: '#FFFFFF',
+    fontSize: 13,
+    marginBottom: 50,
+    fontWeight: 'bold', 
   },
 });
