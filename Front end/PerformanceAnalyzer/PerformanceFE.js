@@ -1,3 +1,4 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, ScrollView, Dimensions } from 'react-native';
 import { LineChart } from "react-native-chart-kit";
@@ -22,60 +23,68 @@ export default function PerformanceFE() {
     <SafeAreaView style={styles.container}>
       <View style={styles.container1}>
         <Text style={styles.heading}>Performance Analyzer</Text>
-       
         
         {/* Vertical ScrollView for text content */}
         <ScrollView contentContainerStyle={styles.scrollViewContent} horizontal={false}>
-          <View >
+          <View>
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
+              <View style={styles.horizontalContainer}>
+                <LineChart
+                  data={{
+                    labels: ["January", "February", "March", "April", "May", "June"],
+                    datasets: [
+                      {
+                        data: [1, 2, 3, 4, 5, 6, 7, 8,]
+                      }
+                    ]
+                  }}
+                  width={Dimensions.get("window").width - 40} // Adjusted width
+                  height={220}
+                  yAxisInterval={1}
+                  chartConfig={chartConfig}
+                  bezier={false}
+                  style={styles.bezierStyle}
+                />
+                <Text style={[styles.text, styles.specialBlue]}>Your Vehicle Speed.</Text>
+              </View>
+            </ScrollView>
 
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
-          <View style={styles.horizontalContainer}>
-            <LineChart
-              data={{
-                labels: ["January", "February", "March", "April", "May", "June"],
-                datasets: [
-                  {
-                    data: [1, 2, 3, 4, 5, 6, 7, 8,]
-                  }
-                ]
-              }}
-              width={Dimensions.get("window").width - 40 } // Adjusted width
-              height={220}
-              yAxisInterval={1}
-              chartConfig={chartConfig}
-              bezier={false}
-              style={styles.bezierStyle}
-            />
+            <View style={styles.container5}>
+              <Text style={[styles.text, styles.specialBlue]}>Engine RPM</Text>
+              <View style={styles.container4}>               
+                <Text style={[styles.text, styles.specialBlue]}>{/*afd */}</Text>
+              </View>
+            </View>
 
-<Text style={[styles.text, styles.specialBlue]}>Your Vehicle Speed.</Text>
+            <View style={styles.container5}>
+              <Text style={[styles.text, styles.specialBlue]}>Throttle Position</Text>
+              <View style={styles.container4}>               
+                <Text style={[styles.text, styles.specialBlue]}>{/*afd */}</Text>
+              </View>
+            </View>
 
-          </View>
-        </ScrollView>
+            <View style={styles.container5}>
+              <Text style={[styles.text, styles.specialBlue]}>Engine Load</Text>
+              <View style={styles.container4}>               
+                <Text style={[styles.text, styles.specialBlue]}>{/*afd */}</Text>
+              </View>
+            </View>
 
-            
-          <View style={[styles.container4, ]}>        
-          
-          <Text style={[styles.text, styles.specialBlue]}>Engine RPM </Text>  
-          </View>  
+            <View style={styles.container5}>
+              <Text style={[styles.text, styles.specialBlue]}>Coolent Temp.</Text>
+              <View style={styles.container4}>               
+                <Text style={[styles.text, styles.specialBlue]}>{/*afd */}</Text>
+              </View>
+            </View>
 
-          <View style={[styles.container4, ]}>   
-          <Text style={[styles.text, styles.specialBlue]}>Throttle Position </Text>  
-          </View>  
+            <View style={styles.container5}>
+              <Text style={[styles.text, styles.specialBlue]}>Mass Air Flow</Text>
+              <View style={styles.container4}>               
+                <Text style={[styles.text, styles.specialBlue]}>{/*afd */}</Text>
+              </View>
+            </View>
 
-          
-          <View style={[styles.container4]}>   
-          <Text style={[styles.text, styles.specialBlue]}>Engine Load </Text>  
-          </View>  
 
-          <View style={[styles.container4 ]}>   
-          <Text style={[styles.text, styles.specialBlue]}>Coolant Temperature </Text>  
-          </View>
-          
-          <View style={[styles.container4]}>   
-          <Text style={[styles.text, styles.specialBlue]}>Mass Air Flow (MAF) </Text>  
-          </View>           
-          
-            {/* Add more text content here */}
           </View>
         </ScrollView>
       </View>
@@ -100,19 +109,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
   },
-  container4: {
-    paddingTop: 5,
-    //width:"50%",
-    flex: 1,
-    backgroundColor: '#272829',
-   // borderColor: '#3AB0FF',
-    alignItems: 'center',
-    borderWidth: 1,
-    justifyContent: 'center',
-    borderRadius: 20,
-    marginBottom: 10,
-  },
-  
   scrollViewContent: {
     flexGrow: 1,
   },
@@ -140,5 +136,18 @@ const styles = StyleSheet.create({
   specialBlue: {
     color: '#3AB0FF',  
   },
-        
+  container5: {
+    flexDirection: 'row', // Display children in a row
+    alignItems: 'center', // Center vertically
+    marginBottom: 10,
+  },
+  container4: {
+    flex: 1,
+    backgroundColor: '#272829',
+    borderWidth: 1,
+    justifyContent: 'center',
+    borderRadius: 20,
+    marginLeft: 10,
+    //padding: 10,
+  },
 });
