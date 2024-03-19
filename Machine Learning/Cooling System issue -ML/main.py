@@ -5,7 +5,7 @@ from sklearn.metrics import classification_report
 
 # --- Train the model with the initial dataset ---
 # Load the initial dataset
-initial_data_path = r"C:\Users\MSI\OneDrive\Desktop\SDGP\2017-07-05_Seat_Leon_S_KA_Normal.csv"  # Update this path
+initial_data_path = "2017-07-05_Seat_Leon_S_KA_Normal.csv"  # Update this path
 initial_data = pd.read_csv(initial_data_path)
 
 # Preprocess the initial dataset
@@ -28,7 +28,7 @@ print(classification_report(y_test, predictions_initial))
 
 # --- Predict with a new dataset using the trained model ---
 # Load the new dataset
-new_data_path = r"C:\Users\MSI\OneDrive\Desktop\SDGP\drive1.csv"  # Update this path
+new_data_path = "drive1.csv"  # Update this path
 new_data = pd.read_csv(new_data_path)
 
 # Make predictions on the new dataset
