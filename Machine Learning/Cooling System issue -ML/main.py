@@ -1,68 +1,53 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.preprocessing import StandardScaler
-from sklearn.impute import SimpleImputer
+from sklearn.metrics import classification_report
 
-# Load the training dataset
-df = pd.read_csv('C:\\Users\\MSI\\OneDrive\\Desktop\\SDGP\\exp1_14drivers_14cars_dailyRoutes.csv.zip', low_memory=False)
+# --- Train the model with the initial dataset ---
+# Load the initial dataset
+initial_data_path = r"C:\Users\MSI\OneDrive\Desktop\SDGP\2017-07-05_Seat_Leon_S_KA_Normal.csv"  # Update this path
+initial_data = pd.read_csv(initial_data_path)
 
-# Preprocess the training data by labeling instances with ENGINE_COOLANT_TEMP > 90 as having a cooling system issue
-df['Cooling_System_Issue'] = (df['ENGINE_COOLANT_TEMP'] > 90).astype(int)
+# Preprocess the initial dataset
+initial_data['Issue'] = (initial_data['COOLANT_TEMPERATURE ()'] > 90).astype(int)
 
-# Define features and label
-X = df[['ENGINE_COOLANT_TEMP']]
-y = df['Cooling_System_Issue']
+# Define features and target variable for the initial dataset
+X_initial = initial_data[['COOLANT_TEMPERATURE ()']]  # Feature: Coolant Temperature
+y_initial = initial_data['Issue']  # Target: Potential issue in the cooling system
 
-# Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Split the initial dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_initial, y_initial, test_size=0.2, random_state=42)
 
-# Impute missing values in the feature data
-imputer = SimpleImputer(strategy='median')
-X_train_imputed = imputer.fit_transform(X_train)
-X_test_imputed = imputer.transform(X_test)
-
-# Scale features to have mean=0 and variance=1
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train_imputed)
-X_test_scaled = scaler.transform(X_test_imputed)
-
-# Train a logistic regression model
+# Initialize and train the Logistic Regression model
 model = LogisticRegression()
-model.fit(X_train_scaled, y_train)
+model.fit(X_train, y_train)
 
-# Evaluate the model on the test set
-y_pred = model.predict(X_test_scaled)
-accuracy = accuracy_score(y_test, y_pred)
-report = classification_report(y_test, y_pred)
-print(f'Accuracy: {accuracy}\n{report}')
+# Evaluate the model on the test set of the initial dataset
+predictions_initial = model.predict(X_test)
+print(classification_report(y_test, predictions_initial))
 
-# Load new data for prediction
-live_data = pd.read_csv(r'C:\Users\MSI\OneDrive\Desktop\SDGP\10.35097-1130\10.35097-1130\data\dataset\OBD-II-Dataset\OBD-II-Dataset\2017-07-06_Seat_Leon_KA_RT_Normal.csv')
+# --- Predict with a new dataset using the trained model ---
+# Load the new dataset
+new_data_path = r"C:\Users\MSI\OneDrive\Desktop\SDGP\drive1.csv"  # Update this path
+new_data = pd.read_csv(new_data_path)
 
-# Rename column to match training data
-live_data.rename(columns={'Engine Coolant Temperature ': 'ENGINE_COOLANT_TEMP'}, inplace=True)
+# Make predictions on the new dataset
+if 'COOLANT_TEMPERATURE ()' in new_data.columns:
+    new_data_predictions = model.predict(new_data[['COOLANT_TEMPERATURE ()']])
+    # Map predictions to descriptive messages
+    new_data['Coolant Issue'] = new_data_predictions
+    new_data['Coolant Issue Message'] = new_data['Coolant Issue'].map({0: 'No coolant issue detected.', 1: 'Potential coolant issue detected!'})
 
-# Impute and scale the live data
-live_data_imputed = imputer.transform(live_data[['ENGINE_COOLANT_TEMP']])
-live_data_scaled = scaler.transform(live_data_imputed)
+    # Count the number of rows with potential coolant issues
+    issue_count = new_data['Coolant Issue'].sum()
+    if (issue_count>1000):
+      print(f"Number of instances  coolant issues arises: {issue_count}")
+      print(("Cooling system issue is predicted to occur"))
 
-# Predict probabilities for the live data
-live_probabilities = model.predict_proba(live_data_scaled)
+    else:
+        print("Cooling system operating Normally")
 
-# Add the probability of having a cooling system issue to the DataFrame
-# Add the probability of having a cooling system issue to the DataFrame, converting to percentage
-live_data['Probability_Cooling_System_Issue'] = live_probabilities[:, 1] * 100  # Multiply by 100 to convert to percentage
-
-# Calculate the average probability of having a cooling system issue, in percentage
-average_probability_issue = live_data['Probability_Cooling_System_Issue'].mean()
-print(f'Average probability of a cooling system issue for the car: {average_probability_issue:.2f}%')
-
-# Display ENGINE_COOLANT_TEMP and Probability_Cooling_System_Issue for the first few rows, with probability shown as percentage
-
-
-# Calculate and print the number of instances with a high probability of having a cooling system issue, using percentage
-# Here, we consider a high probability as greater than 50% (since we've converted probabilities to percentages)
-num_high_risk_issues = (live_data['Probability_Cooling_System_Issue'] > 50).sum()
-print(f'Number of instances with high probability of cooling system issue: {num_high_risk_issues}')
+    # If you want to see which rows have issues, uncomment the following line
+    # print(new_data[new_data['Coolant Issue'] == 1])
+else:
+    print("The required column 'COOLANT_TEMPERATURE ()' is not in the new dataset.")
