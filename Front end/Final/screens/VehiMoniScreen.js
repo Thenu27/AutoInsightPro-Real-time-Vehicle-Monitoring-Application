@@ -19,7 +19,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
             style={{
               fontSize: 25,
               color: 'white',         //Add the name of the application
-              bottom: 20,
+              bottom: 10,
             }}
           >                                          
           AutoInsight 
