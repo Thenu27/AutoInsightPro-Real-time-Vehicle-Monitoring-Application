@@ -9,6 +9,7 @@ import Speedometer, {
     Marks,
     Indicator,
   } from 'react-native-cool-speedometer';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 // Define the main functional component for the vehicle monitoring screen
   function VehiMoniScreen() {
@@ -213,7 +214,7 @@ import Speedometer, {
               </View>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <View style={styles.btn}>
-              <Text style={styles.text4}>Home</Text>
+            <Icon name="home" size={30} color="white" />
             </View>
           </TouchableOpacity>
         </View>
@@ -247,13 +248,15 @@ const styles = StyleSheet.create({
     btn: {
       backgroundColor: '#2CB3FF',
       marginTop: 10,
-      borderRadius: 10,
+      borderRadius: 40,
       color: 'white',
-      width: 100,
-      height: 30,
+      width: 80,
+      height:80,
       alignItems: 'center',
       justifyContent: 'center',
-      top: 10,
+      borderWidth: 2,
+      borderColor: 'white'
+
       },
     text4: {
       color: 'white',
