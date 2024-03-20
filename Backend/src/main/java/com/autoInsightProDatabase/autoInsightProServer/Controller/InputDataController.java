@@ -2,15 +2,22 @@ package com.autoInsightProDatabase.autoInsightProServer.Controller;
 
 import com.autoInsightProDatabase.autoInsightProServer.model.InputData;
 import com.autoInsightProDatabase.autoInsightProServer.model.InputDataDAO;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.json.JSONArray;
+import org.json.JSONException;
 
-import java.util.Arrays;
-import java.util.List;
+
+import java.util.*;
 
 @RestController
 public class InputDataController {
@@ -58,7 +65,9 @@ public class InputDataController {
         int coolant = maintenanceArray[12];
         int wheelAlignment = maintenanceArray[13];
 
-        
+//     predictFromFlask();
+
+        predictFromFlask();
 
         return "Data received successfully!";
 
@@ -79,4 +88,42 @@ public class InputDataController {
 //        'Changing Coolants',
 //        'Performing Wheel alignment'
     }
+
+    @GetMapping("/receiveDataPython")
+    public String receiveFromPython(@RequestBody List<Integer> predictionArray){
+        System.out.println("Receive data:" + predictionArray);
+
+        return "Data received from Python successfully";
+    }
+
+    @PostMapping("/predict-from-flask")
+    public String predictFromFlask() {
+        // Convert the request body to the required format
+        String predictEndpoint = "http://127.0.0.1:5000/predict";
+
+        ResponseEntity<String> responseEntity = new RestTemplate().postForEntity(predictEndpoint, null, String.class);
+        System.out.println("ok");
+        String responseBody = responseEntity.getBody();
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            JSONArray outerArray = new JSONArray(responseBody); //This is ised here to convert a String Json sentence into readable format
+            JSONArray innerArray = outerArray.getJSONArray(0);
+            ArrayList<Integer> predictionArray = new ArrayList<>();
+            for (int i = 0; i < innerArray.length(); i++) {
+                int value = innerArray.getInt(i);
+                if (value == 1 || value == 0) {
+                    predictionArray.add(value);
+                }
+            }
+            System.out.println(predictionArray);
+//            System.out.println("Prediction from Flask: " + responseEntity.getBody());
+            return "Prediction from Flask: " + responseEntity.getBody();
+        } else {
+            System.out.println("Failed to get prediction from flask");
+            return "Failed to get prediction from Flask";
+        }
+    }
+
+
+
+
 }
