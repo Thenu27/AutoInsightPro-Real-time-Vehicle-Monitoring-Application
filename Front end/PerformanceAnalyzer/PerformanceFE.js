@@ -1,7 +1,8 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, ScrollView, Dimensions ,TouchableOpacity} from 'react-native';
 import { LineChart } from "react-native-chart-kit";
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const chartConfig = {
   backgroundColor: "#272829",
@@ -112,9 +113,17 @@ export default function PerformanceFE() {
 
           </View>
         </ScrollView>
-      </View>
+
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <View style={styles.btn}>
+        <Icon name="home" size={30} color="white" />
+        </View>
+      </TouchableOpacity>    
+        
+      </View>      
       <StatusBar style="auto" />
     </SafeAreaView>
+    
   );
 }
 
@@ -183,7 +192,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     //padding: 10,
   },
-
+  
   mainContainner1: {
     width:"100%",
     flex: 1,
@@ -215,4 +224,18 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     fontWeight: 'bold', 
   },
+
+  btn: {
+    backgroundColor: '#2CB3FF',
+    marginTop: 10,
+    borderRadius: 30,
+    color: 'white',
+    width: 60,
+    height:60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'white'
+      },
+
 });
