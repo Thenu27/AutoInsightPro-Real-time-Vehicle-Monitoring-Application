@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function DateReminderFE() {
   const [licenseDate, setLicenseDate] = useState(new Date());
@@ -42,20 +43,20 @@ export default function DateReminderFE() {
   };
 
   const setReminder = () => {
-    
-    const licenseDateTime = new Date(licenseDate.getFullYear(), licenseDate.getMonth(), licenseDate.getDate(), licenseTime.getHours(), licenseTime.getMinutes());// Calculate the time until license and insurance expiry
+    // Calculate the time until license and insurance expiry
+    const licenseDateTime = new Date(licenseDate.getFullYear(), licenseDate.getMonth(), licenseDate.getDate(), licenseTime.getHours(), licenseTime.getMinutes());
     const insuranceDateTime = new Date(insuranceDate.getFullYear(), insuranceDate.getMonth(), insuranceDate.getDate(), insuranceTime.getHours(), insuranceTime.getMinutes());
 
     const licenseTimeRemaining = licenseDateTime.getTime() - Date.now();
     const insuranceTimeRemaining = insuranceDateTime.getTime() - Date.now();
 
-    
-    setTimeout(() => {// /setting for License expiry date
+    // Set reminder for license expiry
+    setTimeout(() => {
       alert('License Expiry Reminder: Your license is about to expire!');
     }, licenseTimeRemaining); 
 
-    
-    setTimeout(() => {//setting for Insurance expiry date
+    // Set reminder for insurance expiry
+    setTimeout(() => {
       alert('Insurance Expiry Reminder: Your insurance is about to expire!');
     }, insuranceTimeRemaining);
   };
@@ -78,7 +79,8 @@ export default function DateReminderFE() {
     // Handle success response from backend
   })
   .catch(error => {
-    console.error('Error:', error);//haddling any error out of scope    
+    console.error('Error:', error);
+    // Handle any errors
   });
 
   return (
@@ -132,12 +134,12 @@ export default function DateReminderFE() {
             value={insuranceDate.toLocaleDateString()}
           />
           {showInsuranceDatePicker && (
-            <DateTimePicker//upto date validation (checks currunt date)
+            <DateTimePicker
               mode='date'
               display='spinner'
               value={insuranceDate}
               onChange={handleInsuranceDateChange}
-              minimumDate={new Date()} 
+              minimumDate={new Date()} // Disable selecting past dates
             />
           )}
           <TextInput
@@ -159,21 +161,26 @@ export default function DateReminderFE() {
         <TouchableOpacity style={styles.button} onPress={setReminder}>
           <Text style={styles.buttonText}>Set Reminder</Text>
         </TouchableOpacity>
-
+               
         <StatusBar style="auto" />
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <View style={styles.btn}>
+        <Icon name="home" size={30} color="white" />
+        </View>
+      </TouchableOpacity>    
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {//main background stylings
+  container: {
     flex: 1,
     backgroundColor: '#272829',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  container3: {//core container styling for lisence 
+  container3: {
     width:"85%",
     flex: 1,
     backgroundColor: 'transparent',
@@ -184,7 +191,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 20,
   },
-  container4: {//core container styling for Insu
+  container4: {
     width:"85%",
     flex: 1,
     backgroundColor: 'transparent',
@@ -245,5 +252,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
+ 
+  btn: {
+    backgroundColor: '#2CB3FF',
+    marginTop: 10,
+    marginBottom:10,
+    borderRadius: 30,
+    color: 'white',
+    width: 60,
+    height:60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'white'
+      }, 
 });
 
