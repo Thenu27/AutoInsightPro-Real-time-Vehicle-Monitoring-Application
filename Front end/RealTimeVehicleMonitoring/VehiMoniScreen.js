@@ -1,6 +1,6 @@
 // Import necessary modules and components from React and React Native
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, SafeAreaView} from 'react-native';
 import Speedometer, {
     Background,
     Arc,
@@ -9,31 +9,80 @@ import Speedometer, {
     Marks,
     Indicator,
   } from 'react-native-cool-speedometer';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
+// Utility function to parse and validate numbers
+const parseAndValidate = (value) => {
+  const parsed = parseFloat(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
 
 // Define the main functional component for the vehicle monitoring screen
   function VehiMoniScreen() {
+
+    const [vehicleSpeed, setVehicleSpeed] = useState(0);
+    const [fuelLevel, setFuelLevel] = useState(0.5);
+    const [rpm, setRpm] = useState(4000);
+    const [coolantTemp, setCoolantTemp] = useState(100);
+    const [currentIndex, setCurrentIndex] = useState(0);
+  
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response = await fetch('http://192.168.1.107:8080/csv/rows');
+          const data = await response.json();
+  
+          if (data && data.length > 0) {
+            // Ensure the interval doesn't exceed the length of the data
+            const intervalId = setInterval(() => {
+              setCurrentIndex((prevIndex) => {
+                const newIndex = (prevIndex + 1) % data.length; // Cycle through data
+                const currentItem = data[newIndex];
+
+
+
+
+
+
+
+
+
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
           <Text                              
             style={{
-              fontSize: 25,
+              fontSize: 23,
               color: 'white',         //Add the name of the application
-              bottom: 20,
+              bottom: 30,
+              paddingTop: 80,
+              fontWeight:'bold',
+              alignItems:'center',
+              textAlign: 'center',
+              justifyContent:'center',
             }}
           >                                          
-          AutoInsight 
-            <Text style={{
-              color: '#2CB3FF',
-              left: 10,
-            }}> 
-              Pro
-            </Text>
+          Real-Time Monitoring &
+              <Text                              
+                style={{
+                  fontSize: 23,
+                  color: '#2CB3FF',         //Add the name of the application
+                  bottom: 30,
+                  paddingTop: 80,
+                  fontWeight:'bold',
+                  alignItems:'center',
+                  textAlign: 'center',
+                  justifyContent:'center',
+                }}
+              >                                          
+               <Text>            </Text>Faults Prediction
+              </Text>
           </Text>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
               <View style={styles.row}>   
-                  <View style={styles.square}>
-                      
+                  <View style={styles.square}>  
                       <Speedometer
-                        value={100}
+                        value={150}
                         fontFamily='squada-one'
                         width={170}                             //Add first meter for Speed
                         height={170}
@@ -62,14 +111,13 @@ import Speedometer, {
                         Speed
                       </Text>
                   </View>
-                  <View style={styles.square}>
-                     
+                  <View style={styles.square}> 
                       <Speedometer
                         value={0.5}
                         fontFamily='squada-one'
                         width={170}                               //Add second meter for Fuel level
                         height={170}
-                        max={1}
+                        max={100}
                       >
                         <Background />
                         <Arc/>
@@ -81,7 +129,7 @@ import Speedometer, {
                         />
                         <Marks
                           fontSize={12}
-                          step={0.25}
+                          step={10}
                         />
                         {/*<Indicator
                           fontSize={25}
@@ -98,8 +146,7 @@ import Speedometer, {
                   </View>
               </View>
               <View style={styles.row}>
-                  <View style={styles.square}>
-                      
+                  <View style={styles.square}>  
                       <Speedometer
                         value={4000}
                         fontFamily='squada-one'
@@ -131,10 +178,9 @@ import Speedometer, {
                       >RPM
                       </Text>
                   </View>
-                  <View style={styles.square}>
-                      
+                  <View style={styles.square}>             
                       <Speedometer
-                        value={100}
+                        value={70}
                         fontFamily='squada-one'
                         width={170}                          //Add forth  meter for Coolent temperature
                         height={170}
@@ -186,8 +232,7 @@ import Speedometer, {
                         }}
                       >
                       Showing result...
-                      </Text>
-                      
+                      </Text>      
                   </View>
                   <View style={styles.square}>
                   <Text 
@@ -207,11 +252,58 @@ import Speedometer, {
                         }}
                       >
                       Showing result...
-                      </Text>
-                      
-                  </View>
+                      </Text>   
+                  </View>   
               </View>
-         </View>
+              <View style={styles.row}>
+                  <View style={styles.square}>
+                      <Text 
+                        style={{
+                          fontSize: 15,
+                          color: '#2CB3FF',
+                          bottom: 70,                                 // Add a square for shoe ML result
+                        }}
+                      >
+                      Prediction
+                      </Text>
+                      <Text 
+                        style={{
+                          fontSize: 15,
+                          color: "white",
+                          
+                        }}
+                      >
+                      Showing result...
+                      </Text> 
+                  </View>
+                  <View style={styles.square}>
+                  <Text 
+                        style={{
+                          fontSize: 15,
+                          color: '#2CB3FF',
+                          bottom: 70,                              // Add a square for shoe ML result
+                        }}
+                      >
+                      Prediction
+                      </Text>
+                      <Text 
+                        style={{
+                          fontSize: 15,
+                          color: "white",
+                          
+                        }}
+                      >
+                      Showing result...
+                      </Text>  
+                  </View>    
+              </View>
+            </ScrollView>     
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <View style={styles.btn}>
+            <Icon name="home" size={30} color="white" />
+            </View>
+          </TouchableOpacity>
+        </SafeAreaView>
     );
 }
 
@@ -223,6 +315,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center', 
         alignItems: 'center', 
         backgroundColor: "#282828",
+        padding: '100',
         
     },
     row: {
@@ -234,11 +327,36 @@ const styles = StyleSheet.create({
         aspectRatio: 1, 
         borderWidth: 3,
         borderColor: '#282828',
-        borderRadius: 1,
+        borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: "#191919",
-    },  
+    }, 
+    btn: {
+      backgroundColor: '#2CB3FF',
+      marginTop: 10,
+      borderRadius: 40,
+      color: 'white',
+      width: 80,
+      height:80,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: 'white',
+      marginBottom:15,
+
+      },
+    text4: {
+      color: 'white',
+    }, 
+   
+    scrollContainer: {
+      alignItems: 'center',
+      width: '100%',
+      justifyContent: 'center',
+      flexGrow:1,
+    },
+
   });
 
 
