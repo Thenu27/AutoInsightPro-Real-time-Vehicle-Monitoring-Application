@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, ScrollView, Dimensions ,TouchableOpacity} from 'react-native';
 import { LineChart } from "react-native-chart-kit";
@@ -21,6 +21,42 @@ const chartConfig = {
 };
 
 export default function PerformanceFE() {
+
+fetch()
+.then(response => response.json())
+.then(data => {
+  setHighestVehicleSpeed(data);
+  })
+  .then(data => {
+    setLowestVehicleSpeed(data);
+    })
+    .then(data => {
+      setEngineRPM(data);
+      })
+      .then(data => {
+        setThrottlePosition(data);
+        })
+        .then(data => {
+          setEngineLoad(data);
+          })
+          .then(data => {
+            setCoolentTemp(data);
+            })
+            .then(data => {
+              setMassAirFlow(data);
+              })
+  .catch(error => console.error(error));
+  
+  EngineRPM
+  const[HighestVehicleSpeed,setHighestVehicleSpeed]=useState(0);
+  const[LowestVehicleSpeed,setLowestVehicleSpeed]=useState(0);
+  
+  const[EngineRPM,setEngineRPM]=useState(0);
+  const[ThrottlePosition,setThrottlePosition]=useState(0);
+  const[EngineLoad,setEngineLoad]=useState(0);
+  const[CoolentTemp,setCoolentTemp]=useState(0);
+  const[MassAirFlow,setMassAirFlow]=useState(0);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container1}>
@@ -38,11 +74,11 @@ export default function PerformanceFE() {
     labels: Array.from({ length: 12 }, (_, i) => `${i * 5 + 5}`), // Time labels for each 5-minute interval
     datasets: [
       {
-        data: [30, 40, 35, 50, 45, 60, 55, 65, 70, 75, 80, 85, 90, 85, 80, 75, 70, 65, 60, 55], // Example speed data for the first 20 minutes
+        data: [30, 40, 35, 50, 45, 60, 55, 65, 70, 75, 80, 85, 90, 50], // Example speed data for the first 20 minutes
       },
     ],
   }}
-  width={Dimensions.get("window").width - 40} // Adjusted width
+  width={Dimensions.get("window").width } // Adjusted width
   height={220}
   yAxisInterval={10} // Adjust the interval according to your data range
   chartConfig={chartConfig}
@@ -57,14 +93,14 @@ export default function PerformanceFE() {
                 <View style={styles.container5}>
               <Text style={[styles.text, styles.specialBlue]}>Highest Vehicle Speed</Text>
               <View style={styles.container4}>               
-              <Text style={styles.text5}>{/*add value */}</Text>
+              <Text style={styles.text5}>{HighestVehicleSpeed}</Text>
               </View>
             </View>
 
             <View style={styles.container5}>
-              <Text style={[styles.text, styles.specialBlue]}>Highest Vehicle Speed</Text>
+              <Text style={[styles.text, styles.specialBlue]}>Lowest Vehicle Speed</Text>
               <View style={styles.container4}>               
-              <Text style={styles.text5}>{/*add value */}</Text>
+              <Text style={styles.text5}>{LowestVehicleSpeed}</Text>
               </View>
             </View>
                 </View>
@@ -76,35 +112,35 @@ export default function PerformanceFE() {
             <View style={styles.container5}>
               <Text style={[styles.text, styles.specialBlue]}>Engine RPM</Text>
               <View style={styles.container4}>               
-              <Text style={styles.text5}>{/*add value */}</Text>
+              <Text style={styles.text5}>{EngineRPM}</Text>
               </View>
             </View>
 
             <View style={styles.container5}>
               <Text style={[styles.text, styles.specialBlue]}>Throttle Position</Text>
               <View style={styles.container4}>               
-              <Text style={styles.text5}>{/*add value */}</Text>
+              <Text style={styles.text5}>{ThrottlePosition}</Text>
               </View>
             </View>
 
             <View style={styles.container5}>
               <Text style={[styles.text, styles.specialBlue]}>Engine Load</Text>
               <View style={styles.container4}>               
-              <Text style={styles.text5}>{/*add value */}</Text>
+              <Text style={styles.text5}>{EngineLoad}</Text>
               </View>
             </View>
 
             <View style={styles.container5}>
               <Text style={[styles.text, styles.specialBlue]}>Coolent Temp.</Text>
               <View style={styles.container4}>               
-              <Text style={styles.text5}>{/*add value */}</Text>
+              <Text style={styles.text5}>{CoolentTemp}</Text>
               </View>
             </View>
 
             <View style={styles.container5}>
               <Text style={[styles.text, styles.specialBlue]}>Mass Air Flow</Text>
               <View style={styles.container4}>               
-                <Text style={styles.text5}>{/*add value */}</Text>
+                <Text style={styles.text5}>{MassAirFlow}</Text>
               </View>
             </View>           
 
@@ -113,15 +149,16 @@ export default function PerformanceFE() {
 
           </View>
         </ScrollView>
+              </View>      
+      <StatusBar style="auto" />
+
 
       <TouchableOpacity onPress={() => navigation.navigate('Home')}>
         <View style={styles.btn}>
         <Icon name="home" size={30} color="white" />
         </View>
-      </TouchableOpacity>    
-        
-      </View>      
-      <StatusBar style="auto" />
+      </TouchableOpacity> 
+
     </SafeAreaView>
     
   );
@@ -135,7 +172,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   container1: {
-    height: '90%',
+    height: '85%',
     width: '90%',
     backgroundColor: '#000000',
     alignItems: 'center',
@@ -170,9 +207,10 @@ const styles = StyleSheet.create({
   text5: {
     color: '#FFFFFF',
     fontSize: 18,
-    marginBottom: 10,
-    paddingLeft:10,
-    paddingRight:10,
+    marginBottom: 10,    
+    paddingTop:3,
+    paddingRight:20,
+    textAlign:'center',
   },
 
   specialBlue: {
@@ -191,6 +229,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginLeft: 10,
     //padding: 10,
+  
   },
   
   mainContainner1: {
@@ -235,7 +274,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: 'white'
-      },
+    borderColor: 'white',
+  },
 
 });
