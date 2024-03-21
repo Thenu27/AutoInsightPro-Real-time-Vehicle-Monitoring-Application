@@ -11,8 +11,43 @@ import Speedometer, {
   } from 'react-native-cool-speedometer';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
+// Utility function to parse and validate numbers
+const parseAndValidate = (value) => {
+  const parsed = parseFloat(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+
 // Define the main functional component for the vehicle monitoring screen
   function VehiMoniScreen() {
+
+    const [vehicleSpeed, setVehicleSpeed] = useState(0);
+    const [fuelLevel, setFuelLevel] = useState(0.5);
+    const [rpm, setRpm] = useState(4000);
+    const [coolantTemp, setCoolantTemp] = useState(100);
+    const [currentIndex, setCurrentIndex] = useState(0);
+  
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response = await fetch('http://192.168.1.107:8080/csv/rows');
+          const data = await response.json();
+  
+          if (data && data.length > 0) {
+            // Ensure the interval doesn't exceed the length of the data
+            const intervalId = setInterval(() => {
+              setCurrentIndex((prevIndex) => {
+                const newIndex = (prevIndex + 1) % data.length; // Cycle through data
+                const currentItem = data[newIndex];
+
+
+
+
+
+
+
+
+
     return (
         <SafeAreaView style={styles.container}>
           <Text                              
@@ -82,7 +117,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
                         fontFamily='squada-one'
                         width={170}                               //Add second meter for Fuel level
                         height={170}
-                        max={1}
+                        max={100}
                       >
                         <Background />
                         <Arc/>
@@ -94,7 +129,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
                         />
                         <Marks
                           fontSize={12}
-                          step={0.25}
+                          step={10}
                         />
                         {/*<Indicator
                           fontSize={25}
