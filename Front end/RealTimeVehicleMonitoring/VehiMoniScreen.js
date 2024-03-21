@@ -1,6 +1,6 @@
 // Import necessary modules and components from React and React Native
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, SafeAreaView} from 'react-native';
 import Speedometer, {
     Background,
     Arc,
@@ -9,16 +9,18 @@ import Speedometer, {
     Marks,
     Indicator,
   } from 'react-native-cool-speedometer';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 // Define the main functional component for the vehicle monitoring screen
   function VehiMoniScreen() {
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
           <Text                              
             style={{
               fontSize: 25,
               color: 'white',         //Add the name of the application
-              bottom: 20,
+              bottom: 30,
+              paddingTop: 80,
             }}
           >                                          
           AutoInsight 
@@ -29,11 +31,11 @@ import Speedometer, {
               Pro
             </Text>
           </Text>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
               <View style={styles.row}>   
-                  <View style={styles.square}>
-                      
+                  <View style={styles.square}>  
                       <Speedometer
-                        value={100}
+                        value={150}
                         fontFamily='squada-one'
                         width={170}                             //Add first meter for Speed
                         height={170}
@@ -62,8 +64,7 @@ import Speedometer, {
                         Speed
                       </Text>
                   </View>
-                  <View style={styles.square}>
-                     
+                  <View style={styles.square}> 
                       <Speedometer
                         value={0.5}
                         fontFamily='squada-one'
@@ -98,8 +99,7 @@ import Speedometer, {
                   </View>
               </View>
               <View style={styles.row}>
-                  <View style={styles.square}>
-                      
+                  <View style={styles.square}>  
                       <Speedometer
                         value={4000}
                         fontFamily='squada-one'
@@ -131,10 +131,9 @@ import Speedometer, {
                       >RPM
                       </Text>
                   </View>
-                  <View style={styles.square}>
-                      
+                  <View style={styles.square}>             
                       <Speedometer
-                        value={100}
+                        value={70}
                         fontFamily='squada-one'
                         width={170}                          //Add forth  meter for Coolent temperature
                         height={170}
@@ -186,8 +185,7 @@ import Speedometer, {
                         }}
                       >
                       Showing result...
-                      </Text>
-                      
+                      </Text>      
                   </View>
                   <View style={styles.square}>
                   <Text 
@@ -207,11 +205,58 @@ import Speedometer, {
                         }}
                       >
                       Showing result...
-                      </Text>
-                      
-                  </View>
+                      </Text>   
+                  </View>   
               </View>
-         </View>
+              <View style={styles.row}>
+                  <View style={styles.square}>
+                      <Text 
+                        style={{
+                          fontSize: 15,
+                          color: '#2CB3FF',
+                          bottom: 70,                                 // Add a square for shoe ML result
+                        }}
+                      >
+                      Prediction
+                      </Text>
+                      <Text 
+                        style={{
+                          fontSize: 15,
+                          color: "white",
+                          
+                        }}
+                      >
+                      Showing result...
+                      </Text> 
+                  </View>
+                  <View style={styles.square}>
+                  <Text 
+                        style={{
+                          fontSize: 15,
+                          color: '#2CB3FF',
+                          bottom: 70,                              // Add a square for shoe ML result
+                        }}
+                      >
+                      Prediction
+                      </Text>
+                      <Text 
+                        style={{
+                          fontSize: 15,
+                          color: "white",
+                          
+                        }}
+                      >
+                      Showing result...
+                      </Text>  
+                  </View>    
+              </View>
+            </ScrollView>     
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <View style={styles.btn}>
+            <Icon name="home" size={30} color="white" />
+            </View>
+          </TouchableOpacity>
+        </SafeAreaView>
     );
 }
 
@@ -234,11 +279,36 @@ const styles = StyleSheet.create({
         aspectRatio: 1, 
         borderWidth: 3,
         borderColor: '#282828',
-        borderRadius: 1,
+        borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: "#191919",
-    },  
+    }, 
+    btn: {
+      backgroundColor: '#2CB3FF',
+      marginTop: 10,
+      borderRadius: 40,
+      color: 'white',
+      width: 80,
+      height:80,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: 'white',
+      marginBottom:15,
+
+      },
+    text4: {
+      color: 'white',
+    }, 
+   
+    scrollContainer: {
+      alignItems: 'center',
+      width: '100%',
+      justifyContent: 'center',
+      flexGrow:1,
+    },
+
   });
 
 
