@@ -61,20 +61,31 @@ export default function Login({ navigation }) {
   ];
 
   const vehicleTypeData = [
-    { label: 'Car', value: 'car' },
-    { label: 'Van', value: 'van' },
-    { label: 'Bus', value: 'bus' },
+    { label: 'Sedan', value: '1' },
+    { label: 'Hatchback', value: '2' },
+    { label: 'SUV', value: '3' },
+    { label: 'Pickup', value: '4' },
+    { label: 'Van', value: '5' },
   ];
 
   const [Fuel, setFuel] = useState('');
   const [VehicleType, setVehicleType] = useState('');
   const [VehicleNumber, setVehicleNumber] = useState('');
-  const [EngineCapacity, setEngineCapacity] = useState('');
-  const [EngineCapacityError, setEngineCapacityError] = useState('');
-  const [enteredEngineCapacity, setEnteredEngineCapacity] = useState('');
+  
+ 
   const [ManuYear, setManuYear] = useState('');
   const [ManuYearError, setManuYearError] = useState('');
   const [enteredManuYear, setEnteredManuYear] = useState('');
+
+  const [EngineCapacity, setEngineCapacity] = useState('');
+  const [EngineCapacityError, setEngineCapacityError] = useState('');
+  const [enteredEngineCapacity, setEnteredEngineCapacity] = useState('');
+
+  const [CylindersCap, setCylindersCap] = useState('');
+  const [CylindersCapError, setCylindersCapError] = useState('');
+ const [enteredCylindersCap, setEnteredCylindersCap] = useState('');
+ 
+
 
   const handleChangeEngineCapacity = (text) => {
     setEnteredEngineCapacity(text);
@@ -85,6 +96,18 @@ export default function Login({ navigation }) {
       setEngineCapacityError('Please enter only integers for Engine Capacity');
     }
   };
+
+  const handleChangeCylindersCap = (text) => {
+    setEnteredCylindersCap(text);
+    if (/^\d*$/.test(text)) {
+      setCylindersCap(text);
+      setCylindersCapError('');
+    } else {
+      setCylindersCapError('Please enter numbers only');
+    }
+  };
+
+
 
   const handleChangeManuYear = (text) => {
     setManuYear(text);
@@ -99,7 +122,7 @@ export default function Login({ navigation }) {
   const handleClick = (e) => {
     e.preventDefault();
 
-    if (!VehicleNumber || !EngineCapacity || !Fuel || !VehicleType || !ManuYear) {
+    if (!VehicleNumber || !EngineCapacity || !Fuel || !VehicleType || !ManuYear || !CylindersCap) {
       console.error('Please fill in all fields');
       return;
     }
@@ -114,7 +137,12 @@ export default function Login({ navigation }) {
       return;
     }
 
-    const vehicle = { VehicleNumber, EngineCapacity, Fuel, VehicleType, ManuYear };
+    if (CylindersCapError) {
+      console.error('Please enter a valid Number of Cylinders ');
+      return;
+    }
+
+    const vehicle = { VehicleNumber, EngineCapacity, Fuel, VehicleType, ManuYear,CylindersCap };
     console.log(vehicle);
 
     fetch("http://10.31.8.186:8081/vehicle/adding", {
@@ -162,7 +190,19 @@ export default function Login({ navigation }) {
           />
           {EngineCapacityError ? <Text style={styles.errorText}>{EngineCapacityError}</Text> : null}
           <DropdownComponent data={fuelData} onSelect={setFuel} />
+          
           <VehicleTypeDropdown data={vehicleTypeData} onSelect={setVehicleType} />
+
+          <TextInput
+            style={styles.inputBox}
+            placeholder='Number of Cylinders'
+            value={enteredCylindersCap}
+            onChangeText={handleChangeCylindersCap}
+          />
+  {CylindersCapError ? <Text style={styles.errorText}>{CylindersCapError}</Text> : null}
+
+
+
           <TextInput
             style={styles.inputBox}
             placeholder='Manufacture Year'
