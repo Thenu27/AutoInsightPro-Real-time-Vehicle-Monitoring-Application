@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import {View, StyleSheet, Text, TouchableOpacity, ScrollView, SafeAreaView} from 'react-native';
 import Speedometer, {
   Background,
   Arc,
@@ -60,22 +60,36 @@ function VehiMoniScreen() {
     fetchData();
   }, []);
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
           <Text                              
             style={{
-              fontSize: 25,
+              fontSize: 23,
               color: 'white',         //Add the name of the application
-              bottom: 20,
+              bottom: 30,
+              paddingTop: 80,
+              fontWeight:'bold',
+              alignItems:'center',
+              textAlign: 'center',
+              justifyContent:'center',
             }}
           >                                          
-          AutoInsight 
-            <Text style={{
-              color: '#2CB3FF',
-              left: 10,
-            }}> 
-              Pro
-            </Text>
+          Real-Time Monitoring &
+              <Text                              
+                style={{
+                  fontSize: 23,
+                  color: '#2CB3FF',         //Add the name of the application
+                  bottom: 30,
+                  paddingTop: 80,
+                  fontWeight:'bold',
+                  alignItems:'center',
+                  textAlign: 'center',
+                  justifyContent:'center',
+                }}
+              >                                          
+               <Text>            </Text>Faults Prediction
+              </Text>
           </Text>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
               <View style={styles.row}>   
                   <View style={styles.square}>
                       
@@ -258,19 +272,26 @@ function VehiMoniScreen() {
                       
                   </View>
               </View>
-         </View>
+              </ScrollView>     
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <View style={styles.btn}>
+            <Icon name="home" size={30} color="white" />
+            </View>
+          </TouchableOpacity>
+         </SafeAreaView>
     );
 }
 
 // Define styles using StyleSheet
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        flexDirection: 'column', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        backgroundColor: "#282828",
-        
+      flex: 1,
+      flexDirection: 'column', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      backgroundColor: "#282828",
+      padding: '100',
+      
     },
     row: {
         flexDirection: 'row',
@@ -281,11 +302,35 @@ const styles = StyleSheet.create({
         aspectRatio: 1, 
         borderWidth: 3,
         borderColor: '#282828',
-        borderRadius: 1,
+        borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: "#191919",
-    },  
+    }, 
+    btn: {
+      backgroundColor: '#2CB3FF',
+      marginTop: 10,
+      borderRadius: 40,
+      color: 'white',
+      width: 80,
+      height:80,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: 'white',
+      marginBottom:15,
+
+    },
+    text4: {
+      color: 'white',
+    }, 
+
+    scrollContainer: {
+      alignItems: 'center',
+      width: '100%',
+      justifyContent: 'center',
+      flexGrow:1,
+    },
   });
 
 
