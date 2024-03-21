@@ -20,7 +20,7 @@ const DropdownComponent = ({ data, onSelect }) => {
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder='Fuel type'
+        placeholder='Fuel Type'
         value={value || null}
         onChange={handleChange}
       />
@@ -46,7 +46,7 @@ const VehicleTypeDropdown = ({ data, onSelect }) => {
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder='Vehicle type'
+        placeholder='Vehicle Type'
         value={value || null}
         onChange={handleChange}
       />
@@ -99,11 +99,11 @@ export default function Login({ navigation }) {
 
   const handleChangeCylindersCap = (text) => {
     setEnteredCylindersCap(text);
-    if (/^\d*$/.test(text)) {
+    if (/^\d*$/.test(text)&& Number(text) >= 3) {
       setCylindersCap(text);
       setCylindersCapError('');
     } else {
-      setCylindersCapError('Please enter numbers only');
+      setCylindersCapError('Please enter a valid Number of Cylinders');
     }
   };
 
@@ -138,7 +138,7 @@ export default function Login({ navigation }) {
     }
 
     if (CylindersCapError) {
-      console.error('Please enter a valid Number of Cylinders ');
+      console.error('Please enter a valid Number of Cylinders');
       return;
     }
 
@@ -189,8 +189,9 @@ export default function Login({ navigation }) {
             onChangeText={handleChangeEngineCapacity}
           />
           {EngineCapacityError ? <Text style={styles.errorText}>{EngineCapacityError}</Text> : null}
+         
+         
           <DropdownComponent data={fuelData} onSelect={setFuel} />
-          
           <VehicleTypeDropdown data={vehicleTypeData} onSelect={setVehicleType} />
 
           <TextInput
