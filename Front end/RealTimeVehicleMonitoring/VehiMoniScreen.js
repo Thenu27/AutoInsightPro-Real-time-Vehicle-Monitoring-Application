@@ -17,19 +17,31 @@ import Icon from 'react-native-vector-icons/FontAwesome';
         <SafeAreaView style={styles.container}>
           <Text                              
             style={{
-              fontSize: 25,
+              fontSize: 23,
               color: 'white',         //Add the name of the application
               bottom: 30,
               paddingTop: 80,
+              fontWeight:'bold',
+              alignItems:'center',
+              textAlign: 'center',
+              justifyContent:'center',
             }}
           >                                          
-          AutoInsight 
-            <Text style={{
-              color: '#2CB3FF',
-              left: 10,
-            }}> 
-              Pro
-            </Text>
+          Real-Time Monitoring &
+              <Text                              
+                style={{
+                  fontSize: 23,
+                  color: '#2CB3FF',         //Add the name of the application
+                  bottom: 30,
+                  paddingTop: 80,
+                  fontWeight:'bold',
+                  alignItems:'center',
+                  textAlign: 'center',
+                  justifyContent:'center',
+                }}
+              >                                          
+               <Text>            </Text>Faults Prediction
+              </Text>
           </Text>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
               <View style={styles.row}>   
@@ -268,6 +280,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center', 
         alignItems: 'center', 
         backgroundColor: "#282828",
+        padding: '100',
         
     },
     row: {
