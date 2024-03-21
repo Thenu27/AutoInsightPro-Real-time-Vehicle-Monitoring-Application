@@ -1,23 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const FuelEff = ({navigation}) => {
+  
+  const [distance, setDistance] = useState(0);
+  const [FCunsumption,setCunsumption] = useState(0);
+  const [PCunsumption,setPCunsumption] = useState(0);
+
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.text}>AutoInsight <Text style={styles.blueText}>Pro</Text></Text>
         <View style={[styles.box, { width: 340}]}>
           <Text style={[styles.text2,]}>Remaining Distance</Text>
-          <Text style={styles.text3}>___<Text style={styles.text2}> KM</Text></Text>
+          <Text style={styles.text3}>{distance}<Text style={styles.text2}> KM</Text></Text>
         </View>
         <View style={[styles.box, { height: 180, width: 340}]}>
           <Text style={styles.text2}>Current Consumption</Text>
-          <Text style={styles.text3}>__<Text style={styles.text2}> KM/L</Text></Text>
+          <Text style={styles.text3}>{FCunsumption}<Text style={styles.text2}> KM/L</Text></Text>
         </View>
         <View style={[styles.box, { height: 280 }]}>
           <Text style={styles.text2}>Potential Consumption</Text>
-          <Text style={[styles.text3, {marginTop: 0}]}>__<Text style={styles.text2}> KM/L</Text></Text>
+          <Text style={[styles.text3, {marginTop: 0}]}>{PCunsumption}<Text style={styles.text2}> KM/L</Text></Text>
           <TouchableOpacity onPress={() => navigation.navigate('Tips')}>
           <View style={styles.innerBox}>
             <Text style={styles.text2}>LEARN TIPS TO SAVE</Text>
@@ -26,6 +31,11 @@ const FuelEff = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+            <View style={styles.btn}>
+            <Icon name="home" size={30} color="white" />
+            </View>
+          </TouchableOpacity>
     </SafeAreaView>
   )
 }
@@ -91,6 +101,21 @@ const styles = StyleSheet.create({
       height: 110,
       marginLeft: 17,
       marginRight: 20,
+    },
+    btn: {
+      backgroundColor: '#2CB3FF',
+      marginTop: 10,
+      borderRadius: 40,
+      color: 'white',
+      width: 80,
+      height:80,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: 'white'
+      },
+    text4: {
+      color: 'white',
     } 
   });
 
