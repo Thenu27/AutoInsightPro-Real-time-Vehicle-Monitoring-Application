@@ -65,8 +65,6 @@ public class InputDataController {
         int coolant = maintenanceArray[12];
         int wheelAlignment = maintenanceArray[13];
 
-//     predictFromFlask();
-
         predictFromFlask();
 
         return "Data received successfully!";
@@ -98,7 +96,6 @@ public class InputDataController {
 
     @PostMapping("/predict-from-flask")
     public String predictFromFlask() {
-        // Convert the request body to the required format
         String predictEndpoint = "http://127.0.0.1:5000/predict";
 
         ResponseEntity<String> responseEntity = new RestTemplate().postForEntity(predictEndpoint, null, String.class);
