@@ -54,6 +54,35 @@ const VehicleTypeDropdown = ({ data, onSelect }) => {
   );
 };
 
+const CylinderNumDropdown = ({ data, onSelect }) => {
+  const [value, setValue] = useState('');
+
+  const handleChange = (item) => {
+    setValue(item.value);
+    onSelect(item.label); // Pass the selected label to the parent component
+  };
+
+  return (
+    <View>
+      <Dropdown
+        style={styles.dropdown}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        data={data}
+        maxHeight={300}
+        labelField="label"
+        valueField="value"
+        placeholder='Vehicle Cylinders Number'
+        value={value || null}
+        onChange={handleChange}
+      />
+    </View>
+  );
+};
+
+
+
+
 export default function Login({ navigation }) {
   const fuelData = [
     { label: 'Petrol', value: '1' },
@@ -68,8 +97,22 @@ export default function Login({ navigation }) {
     { label: 'Van', value: '5' },
   ];
 
-  const [fuel, setFuel] = useState('');
+
+  const cylinderNumdata = [
+    { label: '3', value: '1' },
+    { label: '4', value: '2' },
+    { label: '5', value: '3' },
+    { label: '6', value: '4' },
+    { label: '8', value: '5' },
+    { label: '9', value: '6' },
+    { label: '12', value: '7' },
+  ];
+
+  const [fuel, setFuel] = useState('');  
   const [type, setVehicleType] = useState('');
+
+  const [cylinderNum, setcylinderNum] = useState('');
+
   const [vehicleNum, setvehicleNum] = useState('');
   
  
@@ -81,9 +124,7 @@ export default function Login({ navigation }) {
   const [EngineCapacityError, setEngineCapacityError] = useState('');
   const [enteredEngineCapacity, setEnteredEngineCapacity] = useState('');
 
-  const [cylinderNum, setCylindersCap] = useState('');
-  const [CylindersCapError, setCylindersCapError] = useState('');
- const [enteredCylindersCap, setEnteredCylindersCap] = useState('');
+  
  
 
 
@@ -97,15 +138,7 @@ export default function Login({ navigation }) {
     }
   };
 
-  const handleChangeCylindersCap = (text) => {
-    setEnteredCylindersCap(text);
-    if (/^\d*$/.test(text)&& Number(text) >= 3) {
-      setCylindersCap(text);
-      setCylindersCapError('');
-    } else {
-      setCylindersCapError('Please enter a valid Number of Cylinders');
-    }
-  };
+ 
 
 
 
@@ -164,10 +197,7 @@ export default function Login({ navigation }) {
       return;
     }
   
-    if (CylindersCapError) {
-      console.error('Please enter a valid Number of Cylinders');
-      return;
-    }
+    
   
     // Construct payload object
     const payload = {
@@ -190,7 +220,7 @@ export default function Login({ navigation }) {
     })
     .then(response => {
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error('You allready add this vehicle details');
       }
       return response.json();
     })
@@ -234,14 +264,9 @@ export default function Login({ navigation }) {
          
           <DropdownComponent data={fuelData} onSelect={setFuel} />
           <VehicleTypeDropdown data={vehicleTypeData} onSelect={setVehicleType} />
+          <CylinderNumDropdown data={cylinderNumdata} onSelect={setcylinderNum} />
 
-          <TextInput
-            style={styles.inputBox}
-            placeholder='Number of Cylinders'
-            value={cylinderNum}
-            onChangeText={handleChangeCylindersCap}
-          />
-        {CylindersCapError ? <Text style={styles.errorText}>{CylindersCapError}</Text> : null}
+         
 
 
 
