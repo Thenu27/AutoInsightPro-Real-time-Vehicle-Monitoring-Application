@@ -14,10 +14,10 @@ public class AutoInsightProServerApplication {
 
 		SpringApplication.run(AutoInsightProServerApplication.class, args);
 
-        LoadDataset loader = new LoadDataset();
+//        LoadDataset loader = new LoadDataset();
         // If LoadDataset constructor prints the loaded data,
         // you should see the output here.
-        System.out.println("CSV Data loaded successfully.");
+//        System.out.println("CSV Data loaded successfully.");
     }
 
 }
