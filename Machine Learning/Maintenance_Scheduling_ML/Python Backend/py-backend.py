@@ -27,15 +27,23 @@ def post():
     sc = joblib.load('sc.joblib')
     loaded_model = joblib.load('multi_output_model.joblib')
 
+    data = request.json
+    print("ok")
+    print("Received data:", data)
+    current_mileage = data['currentMileage']
+    mileage_range = data['mileageRange']
+
     engine_type = 'diesel'  
-    mileage_range = 30000 
-    mileage = 5000
+    # mileage_range = 30000 
+    # mileage = 5000
 
     engine_type_encoded = le1.transform([engine_type])[0]
-    features_to_scale = [[engine_type_encoded, mileage_range, mileage]]
+    features_to_scale = [[engine_type_encoded, mileage_range, current_mileage]]
     scaled_features = sc.transform(features_to_scale)
 
     prediction = loaded_model.predict(scaled_features)
+
+    # prediction = loaded_model.predict([[engine_type_encoded, mileage_range, current_mileage]])
 
     return jsonify(prediction.tolist())
 
