@@ -32,8 +32,11 @@ def post():
     print("Received data:", data)
     current_mileage = data['currentMileage']
     mileage_range = data['mileageRange']
+    fuel_type = data['fuelType'] 
 
-    engine_type = 'diesel'  
+    engine_type = 'diesel' if fuel_type == 1 else 'petrol'
+
+    # engine_type = 'diesel'  
     # mileage_range = 30000 
     # mileage = 5000
 
