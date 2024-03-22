@@ -3,11 +3,11 @@ import { StatusBar, StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOp
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Login = ({ navigation }) => {
-  const [vehicles, setVehicles] = useState([]);
+  const [VehicleSave, setVehicles] = useState([]);
   const [error, setError] = useState(null); // State to store network request error
 
   useEffect(() => {
-    fetch("http://localhost:8080/vehicle/getAll")
+    fetch("http://192.168.1.13:8080/vehicle/get-vehicles")
       .then(res => {
         if (!res.ok) {
           throw new Error('Network response was not ok');
@@ -25,7 +25,7 @@ const Login = ({ navigation }) => {
 
   const handleDelete = (index) => {
     // Copy the vehicles array and remove the vehicle at the specified index
-    const updatedVehicles = [...vehicles];
+    const updatedVehicles = [...VehicleSave];
     updatedVehicles.splice(index, 1);
     setVehicles(updatedVehicles);
   };
@@ -42,12 +42,15 @@ const Login = ({ navigation }) => {
             {error ? (
               <Text style={styles.errorText}>{error}</Text>
             ) : (
-              vehicles.map((vehicle, index) => (
+              VehicleSave.map((vehicle, index) => (
                 <View key={index} style={styles.inputContainer}>
+
                   <TextInput
-                    style={styles.inputBox}
-                    placeholder={vehicle.VehicleNumber.toString()}
-                  />
+                      style={styles.inputBox}
+                      value={vehicle.vehicleNum ? vehicle.vehicleNum.toString() : ''}
+                      editable={false}
+                    />
+
                   
                   <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(index)}>
                     <Icon name="trash" size={20} color="red" />
@@ -55,7 +58,7 @@ const Login = ({ navigation }) => {
                 </View>
               ))
             )}
-           {/* <TextInput style={styles.inputBox} placeholder={"werty"} /> */}
+         
            
           </View>
         </ScrollView>
@@ -94,19 +97,21 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    width:200,
+    
   },
   inputBox: {
     flex: 1,
-    height: 60,
-    borderColor: 'gray',
+    height: 45,    
+    borderColor: '#ffffff',
     borderWidth: 1,
     borderRadius: 100,
-    paddingHorizontal: 16,
-    color: '#ffffff',
+   color: '#ffffff',
     backgroundColor: 'rgba(255, 255, 255, 0.4)',
     fontWeight: 'bold',
-    marginVertical: 16,
+    marginVertical: 10,
     fontSize: 16,
+    textAlign:"center"
   },
   mainText: {
     marginTop:20,
