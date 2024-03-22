@@ -139,7 +139,7 @@ public class InputDataController {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Map<String, Integer>> requestEntity = new HttpEntity<>(requestBody, headers);
-        
+
         ResponseEntity<String> responseEntity = new RestTemplate().postForEntity(predictEndpoint, requestEntity, String.class);
         System.out.println("ok");
         String responseBody = responseEntity.getBody();
