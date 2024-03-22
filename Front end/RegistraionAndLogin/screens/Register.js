@@ -68,20 +68,20 @@ export default function Login({ navigation }) {
     { label: 'Van', value: '5' },
   ];
 
-  const [Fuel, setFuel] = useState('');
-  const [VehicleType, setVehicleType] = useState('');
-  const [VehicleNumber, setVehicleNumber] = useState('');
+  const [fuel, setFuel] = useState('');
+  const [type, setVehicleType] = useState('');
+  const [vehicleNum, setvehicleNum] = useState('');
   
  
-  const [ManuYear, setManuYear] = useState('');
+  const [year, setManuYear] = useState('');
   const [ManuYearError, setManuYearError] = useState('');
   const [enteredManuYear, setEnteredManuYear] = useState('');
 
-  const [EngineCapacity, setEngineCapacity] = useState('');
+  const [engineCapacity, setEngineCapacity] = useState('');
   const [EngineCapacityError, setEngineCapacityError] = useState('');
   const [enteredEngineCapacity, setEnteredEngineCapacity] = useState('');
 
-  const [CylindersCap, setCylindersCap] = useState('');
+  const [cylinderNum, setCylindersCap] = useState('');
   const [CylindersCapError, setCylindersCapError] = useState('');
  const [enteredCylindersCap, setEnteredCylindersCap] = useState('');
  
@@ -119,33 +119,9 @@ export default function Login({ navigation }) {
     }
   };
 
-  const handleClick = (e) => {
-    e.preventDefault();
+  
 
-    if (!VehicleNumber || !EngineCapacity || !Fuel || !VehicleType || !ManuYear || !CylindersCap) {
-      console.error('Please fill in all fields');
-      return;
-    }
-
-    if (EngineCapacityError) {
-      console.error('Please enter a valid Engine Capacity');
-      return;
-    }
-
-    if (ManuYearError) {
-      console.error('Please enter a valid Manufacture Year');
-      return;
-    }
-
-    if (CylindersCapError) {
-      console.error('Please enter a valid Number of Cylinders');
-      return;
-    }
-
-    const vehicle = { VehicleNumber, EngineCapacity, Fuel, VehicleType, ManuYear,CylindersCap };
-    console.log(vehicle);
-
-    fetch("http://10.31.8.186:8081/vehicle/adding", {
+   /* fetch("http://192.168.1.13:8080/vehicle-save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(vehicle)
@@ -163,8 +139,71 @@ export default function Login({ navigation }) {
     .catch(error => {
       console.error('Error:', error);
       // Handle any errors
+      
+     });
+  };*/
+
+
+
+  const handleClick = (e) => {
+    e.preventDefault();
+  
+    // Validate input fields
+    if (!vehicleNum || !engineCapacity || !fuel || !type || !year || !cylinderNum) {
+      console.error('Please fill in all fields');
+      return;
+    }
+  
+    if (EngineCapacityError) {
+      console.error('Please enter a valid Engine Capacity');
+      return;
+    }
+  
+    if (ManuYearError) {
+      console.error('Please enter a valid Manufacture Year');
+      return;
+    }
+  
+    if (CylindersCapError) {
+      console.error('Please enter a valid Number of Cylinders');
+      return;
+    }
+  
+    // Construct payload object
+    const payload = {
+      vehicleNum,
+      engineCapacity: parseInt(engineCapacity),
+      fuel,
+      type,
+      year: parseInt(year),
+      cylinderNum: parseInt(cylinderNum),
+    };
+  
+    // Log the payload object
+    console.log('Payload:', payload);
+  
+    // Send POST request to the backend
+    fetch("http://192.168.1.13:8080/vehicle-save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Success:', data);
+      // Handle success response from backend
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Handle any errors
     });
   };
+  
 
   return (
     <SafeAreaView style={styles.container2}>
@@ -176,16 +215,18 @@ export default function Login({ navigation }) {
        
         <ScrollView>
           <View  style={styles.scrollViewContent}>
+          
           <TextInput
             style={styles.inputBox}
             placeholder='Vehicle Number'
-            value={VehicleNumber}
-            onChangeText={(text) => setVehicleNumber(text)}
+            value={vehicleNum}
+            onChangeText={(text) => setvehicleNum(text)}
           />
+
           <TextInput
             style={styles.inputBox}
             placeholder='Engine Capacity'
-            value={enteredEngineCapacity}
+            value={engineCapacity}
             onChangeText={handleChangeEngineCapacity}
           />
           {EngineCapacityError ? <Text style={styles.errorText}>{EngineCapacityError}</Text> : null}
@@ -197,17 +238,17 @@ export default function Login({ navigation }) {
           <TextInput
             style={styles.inputBox}
             placeholder='Number of Cylinders'
-            value={enteredCylindersCap}
+            value={cylinderNum}
             onChangeText={handleChangeCylindersCap}
           />
-  {CylindersCapError ? <Text style={styles.errorText}>{CylindersCapError}</Text> : null}
+        {CylindersCapError ? <Text style={styles.errorText}>{CylindersCapError}</Text> : null}
 
 
 
           <TextInput
             style={styles.inputBox}
             placeholder='Manufacture Year'
-            value={ManuYear}
+            value={year}
             onChangeText={handleChangeManuYear}
           />
           {ManuYearError ? <Text style={styles.errorText}>{ManuYearError}</Text> : null}
