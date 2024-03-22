@@ -130,20 +130,16 @@ public class InputDataController {
         predictionArray.clear();
         String predictEndpoint = "http://127.0.0.1:5000/predict";
 
-        // Create request body with current mileage and mileage range
         Map<String, Integer> requestBody = new HashMap<>();
         int mileageRange = currentMileage - servicedMileage;
         requestBody.put("currentMileage", currentMileage);
         requestBody.put("mileageRange", mileageRange);
 
-        // Set headers for the request
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Create request entity with body and headers
         HttpEntity<Map<String, Integer>> requestEntity = new HttpEntity<>(requestBody, headers);
-
-        // Send POST request to the Flask server
+        
         ResponseEntity<String> responseEntity = new RestTemplate().postForEntity(predictEndpoint, requestEntity, String.class);
         System.out.println("ok");
         String responseBody = responseEntity.getBody();
