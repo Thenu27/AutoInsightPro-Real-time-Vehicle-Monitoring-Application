@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView, StyleSheet, Dimensions, StatusBar, Button, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, ScrollView, StyleSheet, Dimensions, StatusBar, Button, TouchableOpacity, Alert, ActivityIndicator, SafeAreaView } from 'react-native';
 import { CheckBox } from 'react-native-elements';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -7,6 +7,11 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function VehicleMain() {
     const [serMileage, setMileage] = useState('');
+    const [lastServiceMileage, setLastServiceMileage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [serviceItems, setServiceItems] = useState([]);
+
+
   const parts = [
     // 'Changing Oil filter', 'Replacing Engine oil', 'Replacing Washer plug drain', 'Changing Dust and pollen filter',
     // 'Performing Wheel alignment', 'Replacing Air clean filter', 'Changing Fuel filter', 'Replacing Spark plugs',
@@ -22,7 +27,7 @@ export default function VehicleMain() {
 
   const sendDataToSpringboot = async (dataArray) => {
     try {
-      const response = await axios.post('http://localhost:8080/vehicle/maintenance-details', dataArray, {
+      const response = await axios.post('http://localhost:8080/vehicle/maintenance-details', {currentMileage: dataArray[0], lastServiceMileage: dataArray[1]}, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -35,33 +40,57 @@ export default function VehicleMain() {
 
   const [isViewVisible, setIsViewVisible] = useState(true);
 
-  const handleSavePress = () =>{
-    const checkedItemsTransfer = checkedItems.map(item => item ? 1: 0);
-    console.log(checkedItemsTransfer);
-    // sendDataToSpringboot(checkedItemsTransfer);
-        fetch('http://192.168.7.35:8080/vehicle/maintenance-details', { 
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(checkedItemsTransfer),
-    })
-    .then(response => response.text())
-    .then(data => {
-        console.log('Success:', data);
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
-    currentMileage();
-    setIsViewVisible(false);
-  }
 
-  const currentMileage = () => {
-    const mileageData = [100000];
+  const handleSavePress = () => {
+    if (serMileage.trim() !== '') {
+      const currentMileageValue = parseInt(serMileage.trim(), 10);
+      const lastServiceMileageValue = parseInt(lastServiceMileage.trim(), 10);
+  
+      if (lastServiceMileageValue >= currentMileageValue) {
+        Alert.alert('Last service mileage should be less than current mileage.');
+        return; 
+      }
+  
+      if (lastServiceMileage.trim() !== '') {
+        setIsLoading(true); 
+  
+        const checkedItemsTransfer = checkedItems.map(item => item ? 1 : 0);
+  
+        fetch('http://192.168.1.101:8080/vehicle/maintenance-details', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(checkedItemsTransfer),
+        })
+        .then(response => response.text())
+        .then(data => {
+          console.log('Success:', data);
+          setIsViewVisible(false);
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+  
+        currentMileage(serMileage, lastServiceMileage);
+        fetchServiceItems();
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1800);
+      } else {
+        Alert.alert('Please enter the last mileage when servicing.');
+      }
+    } else {
+      Alert.alert('Please enter current mileage.');
+    }
+  };
+  
+
+  const currentMileage = (currentValue, lastServiceMileageValue) => {
+    const mileageData = [currentValue, lastServiceMileageValue];
     mileageData.push(parseInt(serMileage, 10));
 
-    fetch('http://192.168.7.35:8080/vehicle/current-Mileage', {
+    fetch('http://192.168.1.101:8080/vehicle/current-Mileage', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -74,21 +103,63 @@ export default function VehicleMain() {
   }
   
 
+  const fetchServiceItems = async () => {
+    try {
+        // ServiceItems([]);
+        // setIsLoading(true); 
+        const response = await axios.post('http://192.168.1.101:8080/vehicle/next-service-items');
+        console.log('Fetched service items:', response.data); 
+        setServiceItems(response.data);
+    } catch (error) {
+        console.error('Error fetching service items:', error);
+    }
+  };
+
+  const alertServiceDone = () => {
+    Alert.alert('SERVICE DONE', 'Press OK only if the service of the vehicle is done.', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () =>  setIsViewVisible(true)},
+    ]);
+  };
+
+
   return (
-  <View style={styles.container}>
+  <SafeAreaView style={styles.container}>
     <View style={styles.mainContainer}>
 
+    {isLoading && <ActivityIndicator size="large" color="#3AB0FF" style={[styles.loadingIndicator, { zIndex: 50 }]} />}
+
+
     <Text style={styles.topic}>Vehicle Maintenance Schedule</Text>
+    <View style={styles.lineContainer}>
       
       <TouchableOpacity  style={styles.serviceHistoryButton} activeOpacity={0.1} onPress={() => setIsViewVisible(true)} >           
-      
               <Text style={styles.saveButtonText}>SERVICE HISTORY</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.btn1} onPress={fetchServiceItems}>
+          <Icon name="refresh" size={20} color="white" />         
+      </TouchableOpacity>
     
-
+      </View>
       <View style={styles.currentMileageBox}>
-        <Text style={{fontSize: 16, marginLeft: 15, color: '#ffffff',fontWeight:'bold'}}>Current mileage(km): 100,000</Text>
-        {/* Should make a variable to display current mileage */}
+        <Text style={{fontSize: 16, marginLeft: 15, color: '#ffffff',fontWeight:'bold', marginTop: 7}}>Current mileage(km): </Text>
+
+        <TextInput 
+                value={serMileage}
+                // onChangeText={(text) => currentMileage(text)}
+                onChangeText={setMileage}
+                onEndEditing={({ nativeEvent }) => currentMileage(nativeEvent.text, parseInt(lastServiceMileage, 10))}
+                keyboardType='numeric'
+                placeholder="Enter"
+                placeholderTextColor="red"
+                // placeholderTextSize
+                style={styles.enterCurrentMileage}
+              />
+
        
       </View>
 
@@ -98,28 +169,51 @@ export default function VehicleMain() {
         {/* Should make a variable to display current mileage */}
         
       </View>
-
-      <View style={styles.mainContainer2}>
-      <Text style={styles.contentText}>ADD YOUR DETAILS :</Text>
       
+      <View style={styles.mainContainer2}>
+        <View><Text style={[styles.contentText]}>Things to be done in the next service:</Text></View>
+      {/* <Text style={styles.contentText}>Things to be done in the next service:</Text> */}
+      <ScrollView style={{marginBottom: 10, padding: 3, marginTop: -180}}>
+        {Array.from(new Set(serviceItems)).map((item, index) => (
+          <View key={index} style={{backgroundColor: 'white', borderRadius: 20, marginBottom: 10}}>
+            <Text style={styles.serviceItemText}>{item}</Text>
+          </View>
+        ))}
+      </ScrollView>
       </View>
+
+      <TouchableOpacity  style={styles.serviceDoneButton} activeOpacity={0.1} onPress={() => alertServiceDone()} >           
+              <Text style={styles.saveButtonText}>SERVICE DONE</Text>
+      </TouchableOpacity>
       
       {isViewVisible && (
 
         <View style={styles.inputDataView}> 
           <ScrollView style={{marginBottom: 10, padding: 3}}>
+          <View style={{backgroundColor:'white', borderRadius: 20, marginBottom: 10}}>
+              <Text style={styles.inputDataText}>Current Mileage (Km): </Text>
+              <TextInput 
+                value={serMileage}
+                // onChangeText={(text) => setMileage(text)}
+                onChangeText={setMileage}
+                keyboardType='numeric'
+                placeholder="Enter"
+                style={styles.enterText}
+              />
+            </View>
             <View style={{backgroundColor:'white', borderRadius: 20}}>
               <Text style={styles.inputDataText}>Last Mileage when the service was done (Km): </Text>
               <TextInput 
-                value={serMileage}
-                onChangeText={(text) => setMileage(text)}
+                value={lastServiceMileage}
+                // onChangeText={(text) => setMileage(text)}
+                onChangeText={setLastServiceMileage}
                 keyboardType='numeric'
                 placeholder="Enter"
                 style={styles.enterText}
               />
             </View>
             <View style={{backgroundColor:'white', borderRadius: 20, marginTop: 10}}>
-              <Text style={styles.inputDataText}>Out of the below, what were the things done in the last service:</Text>
+              <Text style={styles.inputDataText}>Out of the below, what were the things done in the last service    (If the Last service was done within the last 10,000km):</Text>
               {parts.map((part, index) => (
                 <View key={index}>
                   <CheckBox
@@ -135,14 +229,17 @@ export default function VehicleMain() {
                     }}
                     title={part}
                   />
+                  
                 </View>
               ))}
             </View>
+            {/* {isLoading && <ActivityIndicator size="large" color="#3AB0FF" style={styles.loadingIndicator} />} */}
             <TouchableOpacity onPress={handleSavePress} style={styles.saveButton}>
               <Text style={styles.saveButtonText}>Save</Text>
             </TouchableOpacity>
             <Text></Text>
           </ScrollView>
+         
         </View>
       )}
       <StatusBar style="auto" />
@@ -154,7 +251,7 @@ export default function VehicleMain() {
         </View>
       </TouchableOpacity>
      
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -240,6 +337,7 @@ borderRadius:20,
     backgroundColor:'transparent',
     borderColor:"#3AB0FF",
     borderWidth:1,  
+    flexDirection: 'row',
   
   },
 
@@ -262,7 +360,8 @@ contentText:{
    color: '#ffffff',
    fontWeight:'bold',
    justifyContent:'center',
-   flex:1
+   flex:1,
+  //  marginBottom: 50,
 },
 
 enterText:{
@@ -284,5 +383,58 @@ btn: {
   borderWidth: 2,
   borderColor: 'white'
   },
+  serviceDoneButton:{
+    backgroundColor: "#50C878",
+    borderRadius: 100,
+    width: 250,
+    marginVertical:16,  
+    marginBottom: 50,
+    
+  },
+  enterCurrentMileage: {
+    marginLeft: 15,
+    fontSize: 15,
+    color: 'white',
+    fontWeight: 'bold',
+    backgroundColor:'transparent',
+    width: 90,
+    height: 35,
+    borderRadius: 2,
+    // placeholderTextColor: 'red',
+    
+
+  },
+  loadingIndicator:{
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 999,
+  },
+
+  lineContainer: {
+    flexDirection: 'row',
+    alignItems: 'center', 
+  },
+
+  btn1: {
+    marginLeft: 10,
+    height: 40,
+    width: 40,
+    borderRadius: 20,
+    backgroundColor: "#3AB0FF",
+    justifyContent:'center',
+    alignItems: 'center',
+  },
+  serviceItemText: {
+    fontSize: 16,
+    padding: 15,
+    fontWeight: 'bold',
+  },
+
 });
 
