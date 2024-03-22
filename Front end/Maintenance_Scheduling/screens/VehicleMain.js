@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet, Dimensions, StatusBar, Button, TouchableOpacity, Alert, ActivityIndicator, SafeAreaView } from 'react-native';
 import { CheckBox } from 'react-native-elements';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import * as Progress from 'react-native-progress';
 
 
 export default function VehicleMain() {
@@ -10,7 +11,11 @@ export default function VehicleMain() {
     const [lastServiceMileage, setLastServiceMileage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [serviceItems, setServiceItems] = useState([]);
+    const [progressPercentage, setProgressPercentage] = useState(0);
 
+    useEffect(() => {
+      calculateProgressPercentage();
+    }, [serMileage, lastServiceMileage]);
 
   const parts = [
     // 'Changing Oil filter', 'Replacing Engine oil', 'Replacing Washer plug drain', 'Changing Dust and pollen filter',
@@ -25,18 +30,18 @@ export default function VehicleMain() {
   ];
   const [checkedItems, setCheckedItems] = useState(new Array(parts.length).fill(false));
 
-  const sendDataToSpringboot = async (dataArray) => {
-    try {
-      const response = await axios.post('http://localhost:8080/vehicle/maintenance-details', {currentMileage: dataArray[0], lastServiceMileage: dataArray[1]}, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      console.log(response.data);
-    } catch (error) {
-      console.error('Error sending data:', error);
-    }
-  };
+  // const sendDataToSpringboot = async (dataArray) => {
+  //   try {
+  //     const response = await axios.post('http://localhost:8080/vehicle/maintenance-details', {currentMileage: dataArray[0], lastServiceMileage: dataArray[1]}, {
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       }
+  //     });
+  //     console.log(response.data);
+  //   } catch (error) {
+  //     console.error('Error sending data:', error);
+  //   }
+  // };
 
   const [isViewVisible, setIsViewVisible] = useState(true);
 
@@ -126,6 +131,19 @@ export default function VehicleMain() {
     ]);
   };
 
+  const calculateProgressPercentage = () => {
+    if (serMileage && lastServiceMileage) {
+        const currentMileageValue = parseInt(serMileage, 10);
+        const lastServiceMileageValue = parseInt(lastServiceMileage, 10);
+        const totalDistance = currentMileageValue - lastServiceMileageValue;
+        const progress = totalDistance / 10000; 
+
+      
+        const progressPercentage = Math.min(1, Math.max(0, progress));
+        setProgressPercentage(progressPercentage);
+    }
+};
+
 
   return (
   <SafeAreaView style={styles.container}>
@@ -163,23 +181,34 @@ export default function VehicleMain() {
        
       </View>
 
+      
+      <View style={[styles.currentMileageBox,{flexDirection:'column'}]}>
+        {/* <Text style={{fontSize: 16, marginLeft: 15, color: '#ffffff',fontWeight:'bold'}}>Next service at :</Text> */}
 
-      <View style={styles.currentMileageBox}>
-        <Text style={{fontSize: 16, marginLeft: 15, color: '#ffffff',fontWeight:'bold'}}>Next service at :</Text>
-        {/* Should make a variable to display current mileage */}
-        
+        {/* <Text style={{ fontSize: 16, color: '#ffffff', fontWeight: 'bold', marginBottom: 15 }}>Next service at :</Text> */}
+        <View style={{marginLeft: 10}}>
+          <Progress.Bar progress={progressPercentage} width={250} color={progressPercentage === 1 ? 'red' : '#3AB0FF'} />
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '90%', marginLeft: 10 }}>
+          <Text style={{ color: '#ffffff' , fontSize: 16, fontWeight: 'bold', marginLeft: -15, marginTop: 4}}>Last service</Text>
+          <Text style={{ color: '#ffffff' , fontSize: 16, fontWeight: 'bold', marginRight: -32, marginTop: 4 }}>Next service</Text>
+      </View>
+
+
       </View>
       
       <View style={styles.mainContainer2}>
         <View><Text style={[styles.contentText]}>Things to be done in the next service:</Text></View>
       {/* <Text style={styles.contentText}>Things to be done in the next service:</Text> */}
-      <ScrollView style={{marginBottom: 10, padding: 3, marginTop: -180}}>
-        {Array.from(new Set(serviceItems)).map((item, index) => (
-          <View key={index} style={{backgroundColor: 'white', borderRadius: 20, marginBottom: 10}}>
-            <Text style={styles.serviceItemText}>{item}</Text>
-          </View>
-        ))}
-      </ScrollView>
+        <View style={{flex:1}}>
+          <ScrollView style={{marginBottom: 10, padding: 3, marginTop: -180, flexGrow: 1, paddingVertical: 10}}>
+            {Array.from(new Set(serviceItems)).map((item, index) => (
+              <View key={index} style={{backgroundColor: 'white', borderRadius: 20, marginBottom: 10}}>
+                <Text style={styles.serviceItemText}>{item}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
       </View>
 
       <TouchableOpacity  style={styles.serviceDoneButton} activeOpacity={0.1} onPress={() => alertServiceDone()} >           
@@ -282,159 +311,160 @@ borderRadius:20,
 
 },
 
-  inputDataView:{
-    marginTop: 20,
-    backgroundColor: "#272829",
-    width: '95%',
-    height: '98%',
-    borderRadius: 20,
-    opacity: 0.9,
-    padding: 10,
-    zIndex: 15,
-    borderColor: "#3AB0FF",
-    borderWidth: 1,
-    position: 'absolute',
-    marginTop: 50,
-  },
-  inputDataText:{
-    fontSize: 18,
-    padding: 15,
-    fontWeight:'bold',
-  },
-  saveButton:{
-    backgroundColor: "#3AB0FF",
-    padding: 5,
-    justifyContent: "center", 
-    marginTop: 10,
-    borderRadius: 25,
+inputDataView:{
+  marginTop: 20,
+  backgroundColor: "#272829",
+  width: '95%',
+  height: '98%',
+  borderRadius: 20,
+  opacity: 0.9,
+  padding: 10,
+  zIndex: 15,
+  borderColor: "#3AB0FF",
+  borderWidth: 1,
+  position: 'absolute',
+  marginTop: 50,
+},
+inputDataText:{
+  fontSize: 18,
+  padding: 15,
+  fontWeight:'bold',
+},
+saveButton:{
+  backgroundColor: "#3AB0FF",
+  padding: 5,
+  justifyContent: "center", 
+  marginTop: 10,
+  borderRadius: 25,
 
-  },
-  saveButtonText:{
-    fontSize: 16,
-    padding: 10,
-    textAlign: 'center',
-    color: '#ffffff',
-    fontWeight:'bold',
-    
-  },
+},
+saveButtonText:{
+  fontSize: 16,
+  padding: 10,
+  textAlign: 'center',
+  color: '#ffffff',
+  fontWeight:'bold',
   
-  serviceHistoryButton:{
-    backgroundColor: "#3AB0FF",
-    borderRadius: 100,
-    width: 250,
-    marginVertical:16,  
-    
-  },
+},
 
-  currentMileageBox:{    
-    borderRadius: 20,
-    width: 300,
-    marginVertical:16,
-    padding:20,
-   // marginTop: 25,
-    justifyContent:'center',
-    width:"90%",  
-    backgroundColor:'transparent',
-    borderColor:"#3AB0FF",
-    borderWidth:1,  
-    flexDirection: 'row',
+serviceHistoryButton:{
+  backgroundColor: "#3AB0FF",
+  borderRadius: 100,
+  width: 250,
+  marginVertical:16,  
   
-  },
+},
 
-  mainContainer2:{
-    width:"90%",
-    flex:1,
-    backgroundColor:'transparent',
-    borderColor:"#3AB0FF",
-    alignItems:'center',
-    borderWidth:1,
-    justifyContent:'center',
-    borderRadius: 20,
-    marginBottom:20,
-    marginTop:10,
-    padding:10,
-  },
+currentMileageBox:{    
+  borderRadius: 20,
+  width: 300,
+  marginVertical:16,
+  padding:20,
+  // marginTop: 25,
+  justifyContent:'center',
+  width:"90%",  
+  backgroundColor:'transparent',
+  borderColor:"#3AB0FF",
+  borderWidth:1,  
+  flexDirection: 'row',
+
+},
+
+mainContainer2:{
+  width:"90%",
+  flex:1,
+  backgroundColor:'transparent',
+  borderColor:"#3AB0FF",
+  alignItems:'center',
+  borderWidth:1,
+  justifyContent:'center',
+  borderRadius: 20,
+  marginBottom:20,
+  marginTop:10,
+  padding:10,
+},
 
 contentText:{
-  fontSize: 16, 
-   color: '#ffffff',
-   fontWeight:'bold',
-   justifyContent:'center',
-   flex:1,
-  //  marginBottom: 50,
+fontSize: 16, 
+  color: '#ffffff',
+  fontWeight:'bold',
+  justifyContent:'center',
+  flex:1,
+//  marginBottom: 50,
 },
 
 enterText:{
-  marginTop: 5, 
-  fontSize: 15,
-   marginBottom: 10, 
-   marginLeft: 15,
-   color:'#3AB0FF',
+marginTop: 5, 
+fontSize: 15,
+  marginBottom: 10, 
+  marginLeft: 15,
+  color:'#3AB0FF',
 },
 btn: {
-  backgroundColor: '#2CB3FF',
-  marginTop: 10,
-  borderRadius: 30,
+backgroundColor: '#2CB3FF',
+marginTop: 10,
+borderRadius: 30,
+color: 'white',
+width: 60,
+height:60,
+alignItems: 'center',
+justifyContent: 'center',
+borderWidth: 2,
+borderColor: 'white'
+},
+serviceDoneButton:{
+  backgroundColor: "#50C878",
+  borderRadius: 100,
+  width: 250,
+  marginVertical:16,  
+  marginBottom: 50,
+  
+},
+enterCurrentMileage: {
+  marginLeft: 15,
+  fontSize: 15,
   color: 'white',
-  width: 60,
-  height:60,
+  fontWeight: 'bold',
+  backgroundColor:'transparent',
+  width: 90,
+  height: 35,
+  borderRadius: 2,
+  // placeholderTextColor: 'red',
+  
+
+},
+loadingIndicator:{
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.7)',
   alignItems: 'center',
   justifyContent: 'center',
-  borderWidth: 2,
-  borderColor: 'white'
-  },
-  serviceDoneButton:{
-    backgroundColor: "#50C878",
-    borderRadius: 100,
-    width: 250,
-    marginVertical:16,  
-    marginBottom: 50,
-    
-  },
-  enterCurrentMileage: {
-    marginLeft: 15,
-    fontSize: 15,
-    color: 'white',
-    fontWeight: 'bold',
-    backgroundColor:'transparent',
-    width: 90,
-    height: 35,
-    borderRadius: 2,
-    // placeholderTextColor: 'red',
-    
+  zIndex: 999,
+},
 
-  },
-  loadingIndicator:{
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 999,
-  },
+lineContainer: {
+  flexDirection: 'row',
+  alignItems: 'center', 
+},
 
-  lineContainer: {
-    flexDirection: 'row',
-    alignItems: 'center', 
-  },
+btn1: {
+  marginLeft: 10,
+  height: 40,
+  width: 40,
+  borderRadius: 20,
+  backgroundColor: "#3AB0FF",
+  justifyContent:'center',
+  alignItems: 'center',
+},
+serviceItemText: {
+  fontSize: 16,
+  padding: 15,
+  fontWeight: 'bold',
+},
 
-  btn1: {
-    marginLeft: 10,
-    height: 40,
-    width: 40,
-    borderRadius: 20,
-    backgroundColor: "#3AB0FF",
-    justifyContent:'center',
-    alignItems: 'center',
-  },
-  serviceItemText: {
-    fontSize: 16,
-    padding: 15,
-    fontWeight: 'bold',
-  },
 
 });
 
