@@ -2,23 +2,68 @@ package com.autoInsightProDatabase.autoInsightProServer.Controller;
 
 import com.autoInsightProDatabase.autoInsightProServer.model.InputData;
 import com.autoInsightProDatabase.autoInsightProServer.model.InputDataDAO;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.json.JSONArray;
+import org.json.JSONException;
 
-import java.util.Arrays;
-import java.util.List;
+
+import java.util.*;
 
 @RestController
 public class InputDataController {
     int currentMileage;
     int servicedMileage;
 
+    private int oilFilter;
+    private int dustPollenFilter;
+    private int airFilter;
+    private int fuelFilter;
+    private int sparkPlug;
+    private int brakePad;
+    private int clutch;
+    private int engineOil;
+    private int washerPlugDrain;
+    private int brakeFluid;
+    private int transmissionFluid;
+    private int coolant;
+    private int wheelAlignment;
+
+    private ArrayList<String> serviceItemNames = new ArrayList<>();
+
     @Autowired
     private InputDataDAO inputDataDAO;
+
+    private  ArrayList<Integer> predictionArray = new ArrayList<>();
+
+    private  ArrayList<String> nextServiceNeedItems = new ArrayList<>();
+    private int [] maintenanceArray2;
+
+    public void createServiceItemList(){
+        serviceItemNames.add("Changing Oil filter");
+        serviceItemNames.add("Changing Dust and pollen filter");
+        serviceItemNames.add("Replacing Air clean filter");
+        serviceItemNames.add("Changing Fuel filter");
+        serviceItemNames.add("Replacing Spark plugs");
+        serviceItemNames.add("Replacing Brake pads");
+        serviceItemNames.add("Replacing Clutch");
+        serviceItemNames.add("Replacing Engine oil");
+        serviceItemNames.add("Replacing Washer plug drain");
+        serviceItemNames.add("Changing Brake fluid");
+        serviceItemNames.add("Replacing Brake and clutch oil");
+        serviceItemNames.add("Changing Transmission fluid");
+        serviceItemNames.add("Changing Coolants");
+        serviceItemNames.add("Performing Wheel alignment");
+    }
 
     @GetMapping("/vehicle/get-all")
     public List<InputData> getAllVehicles(){
@@ -34,49 +79,113 @@ public class InputDataController {
         System.out.println(Arrays.toString(mileage));
         currentMileage = mileage[0];
         servicedMileage = mileage[1];
-        System.out.println(currentMileage);
-        System.out.println(servicedMileage);
+        System.out.println("CM "+currentMileage);
+        System.out.println("LS "+servicedMileage);
         return "Current mileage updated";
     }
 
     @PostMapping("/vehicle/maintenance-details")
     public String receiveMaintenanceData(@RequestBody int[] maintenanceArray) {
         System.out.println(Arrays.toString(maintenanceArray));
+        createServiceItemList();
 
-        int oilFilter = maintenanceArray[0];
-        int dustPollenFilter = maintenanceArray[1];
-        int airFilter = maintenanceArray[2];
-        int fuelFilter = maintenanceArray[3];
-        int sparkPlug = maintenanceArray[4];
-        int brakePad = maintenanceArray[5];
-        int clutch = maintenanceArray[6];
-        int engineOil = maintenanceArray[7];
-        int washerPlugDrain = maintenanceArray[8];
-        int brakeFluid = maintenanceArray[9];
-        int brakeClutchOil = maintenanceArray[10];
-        int transmissionFluid = maintenanceArray[11];
-        int coolant = maintenanceArray[12];
-        int wheelAlignment = maintenanceArray[13];
+        maintenanceArray2 = maintenanceArray;
+        System.out.println(maintenanceArray2.length);
+//        for(int i: maintenanceArray2){
+//            System.out.print(i);
+//        }
+        oilFilter = maintenanceArray2[0];
+        dustPollenFilter = maintenanceArray2[1];
+        airFilter = maintenanceArray2[2];
+        fuelFilter = maintenanceArray2[3];
+        sparkPlug = maintenanceArray2[4];
+        brakePad = maintenanceArray2[5];
+        clutch = maintenanceArray2[6];
+        engineOil = maintenanceArray2[7];
+        washerPlugDrain = maintenanceArray2[8];
+        brakeFluid = maintenanceArray2[9];
+//        int brakeClutchOil = maintenanceArray2[10];
+        transmissionFluid = maintenanceArray2[11];
+        coolant = maintenanceArray2[12];
+        wheelAlignment = maintenanceArray2[13];
 
-        
+//        System.out.println(wheelAlignment);
+
+        predictFromFlask();
 
         return "Data received successfully!";
 
 
-
-//        'Changing Oil filter',
-//        'Changing Dust and pollen filter',
-//        'Replacing Air clean filter',
-//        'Changing Fuel filter',
-//        'Replacing Spark plugs',
-//        'Replacing Brake pads',
-//        'Replacing Clutch',
-//        'Replacing Engine oil',
-//        'Replacing Washer plug drain',
-//        'Changing Brake fluid',
-//        'Replacing Brake and clutch oil',
-//        'Changing Transmission fluid',
-//        'Changing Coolants',
-//        'Performing Wheel alignment'
     }
+
+    @GetMapping("/receiveDataPython")
+    public String receiveFromPython(@RequestBody List<Integer> predictionArray){
+        System.out.println("Receive data:" + predictionArray);
+
+        return "Data received from Python successfully";
+    }
+
+    @PostMapping("/predict-from-flask")
+    public String predictFromFlask() {
+        predictionArray.clear();
+        String predictEndpoint = "http://127.0.0.1:5000/predict";
+
+        Map<String, Integer> requestBody = new HashMap<>();
+        int mileageRange = currentMileage - servicedMileage;
+        requestBody.put("currentMileage", currentMileage);
+        requestBody.put("mileageRange", mileageRange);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Integer>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<String> responseEntity = new RestTemplate().postForEntity(predictEndpoint, requestEntity, String.class);
+        System.out.println("ok");
+        String responseBody = responseEntity.getBody();
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            JSONArray outerArray = new JSONArray(responseBody);
+            JSONArray innerArray = outerArray.getJSONArray(0);
+            for (int i = 0; i < innerArray.length(); i++) {
+                int value = innerArray.getInt(i);
+                if (value == 1 || value == 0) {
+                    predictionArray.add(value);
+                }
+            }
+            predictionArray.add(10,2);
+            System.out.println(predictionArray);
+            nextServiceItems();
+            return "Prediction from Flask: " + responseEntity.getBody();
+        } else {
+            System.out.println("Failed to get prediction from flask");
+            return "Failed to get prediction from Flask";
+        }
+    }
+
+
+    public void nextServiceItems(){
+        System.out.println("nextServiceItems is working");
+        ArrayList<Integer> nextItems = new ArrayList<>();
+        nextServiceNeedItems.clear();
+
+        int count = 0;
+
+        for (int prediction : predictionArray) {
+            count++;
+            if (prediction == 1 && maintenanceArray2[count - 1] != prediction) {
+                nextItems.add(count);
+            }
+        }
+        for (int index : nextItems) {
+            System.out.println(serviceItemNames.get(index - 1));
+            nextServiceNeedItems.add(serviceItemNames.get(index - 1));
+        }
+    }
+
+    @PostMapping("/vehicle/next-service-items")
+    public List<String> getNextServiceItems() {
+        return nextServiceNeedItems;
+    }
+
+
 }

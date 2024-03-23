@@ -20,7 +20,7 @@ public class InputDataDAO {
     public List<InputData> getAllVehicles(){
         List<InputData> vehicles = new ArrayList<>();
         Streamable.of(repository.findAll()).forEach(vehicles::add);
-        return vehicles;
+        return vehicles; 
     }
 
 }

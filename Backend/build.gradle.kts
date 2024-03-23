@@ -22,6 +22,18 @@ dependencies {
 	// https://mvnrepository.com/artifact/mysql/mysql-connector-java
 	implementation("mysql:mysql-connector-java:8.0.33")
 
+//	implementation ("com.opencsv:opencsv:5.2")
+	implementation("com.opencsv:opencsv:5.9")
+	// https://mvnrepository.com/artifact/com.google.code.gson/gson
+	implementation("com.google.code.gson:gson:2.10.1")
+
+	implementation ("org.json:json:20210307")
+
+
+
+
+
+
 }
 
 tasks.withType<Test> {

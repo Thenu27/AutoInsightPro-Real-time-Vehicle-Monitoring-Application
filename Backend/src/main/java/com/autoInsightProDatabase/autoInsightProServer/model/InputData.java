@@ -15,8 +15,6 @@ public class InputData {
 
     private String vehicleNum;
 
-    ///
-
     public int getId() {
         return id;
     }
