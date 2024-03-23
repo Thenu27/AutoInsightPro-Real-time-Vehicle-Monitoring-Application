@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native'; // Added Modal import
+import { StatusBar, StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native'; 
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Login = ({ navigation }) => {
   const [VehicleSave, setVehicles] = useState([]);
   const [error, setError] = useState(null); // State to store network request error
-  const [licenseModalVisible, setLicenseModalVisible] = useState(false); // State for modal visibility
+  const [ModalVisible, setModalVisible] = useState(false); // State for modal visibility
 
   useEffect(() => {
     fetch("http://192.168.1.13:8080/vehicle/get-vehicles")
@@ -36,7 +36,7 @@ const Login = ({ navigation }) => {
       const updatedVehicles = [...VehicleSave];
       updatedVehicles.splice(index, 1);
       setVehicles(updatedVehicles);
-      setLicenseModalVisible(true); // Show success modal
+      setModalVisible(true); // Show success modal
     })
     .catch(error => {
       console.error('Error deleting vehicle:', error);
@@ -56,14 +56,26 @@ const Login = ({ navigation }) => {
             ) : (
               VehicleSave.map((vehicle, index) => (
                 <View key={index} style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.inputBox}
-                    value={`Vehicle Number: ${vehicle.vehicleNum}`}
-                    editable={false}
-                  />
+
+
+
+                <TouchableOpacity  style={styles.inputBox}  >
+                        
+                        <TextInput   
+                        style={styles.inputBox2}
+                          value={`Vehicle Number: ${vehicle.vehicleNum}`}
+                          editable={false}
+                        />
+
+                </TouchableOpacity>
+
+
+
                   <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(vehicle.vehicleNum, index)}>
                     <Icon name="trash" size={20} color='#3AB0FF' />
                   </TouchableOpacity>
+
+
                 </View>
               ))
             )}
@@ -79,9 +91,9 @@ const Login = ({ navigation }) => {
       <Modal
         animationType="slide"
         transparent={true}
-        visible={licenseModalVisible}
+        visible={ModalVisible}
         onRequestClose={() => {
-          setLicenseModalVisible(false);
+          setModalVisible(false);
         }}
       >
         <View style={styles.centeredView}>
@@ -91,7 +103,7 @@ const Login = ({ navigation }) => {
             <TouchableOpacity
               style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
               onPress={() => {
-                setLicenseModalVisible(false);
+                setModalVisible(false);
               }}
             >
               <Text style={styles.textStyle}>Close</Text>
@@ -106,12 +118,12 @@ const Login = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000000',
-    height: '80%',
+    height: '90%',
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    borderTopRightRadius: 150,
-    borderTopLeftRadius: 150,
+    borderTopRightRadius: 160,
+    borderTopLeftRadius: 160,
   },
   container2: {
     backgroundColor: '#272829',
@@ -137,7 +149,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 100,
    color: '#ffffff',
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',   
+    marginVertical: 10,
+    
+  },
+
+  inputBox2: {
+    flex: 1,
+    height: 45, 
+    borderRadius: 100,
+   color: '#ffffff',
     fontWeight: 'bold',
     marginVertical: 10,
     fontSize: 16,
