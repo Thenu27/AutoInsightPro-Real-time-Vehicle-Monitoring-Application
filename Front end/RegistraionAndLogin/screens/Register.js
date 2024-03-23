@@ -32,6 +32,7 @@ const VehicleTypeDropdown = ({ data, onSelect }) => {
   const [value, setValue] = useState('');
 
   const handleChange = (item) => {
+    
     setValue(item.value);
     onSelect(item.label); // Pass the selected label to the parent component
   };
@@ -226,8 +227,12 @@ export default function Login({ navigation }) {
     })
     .then(data => {
       console.log('Success:', data);
-      // Handle success response from backend
+      setvehicleNum('');
+      setEngineCapacity('');
+      setManuYear('');
+      
     })
+    
     .catch(error => {
       console.error('Error:', error);
       // Handle any errors
@@ -261,11 +266,9 @@ export default function Login({ navigation }) {
           />
           {EngineCapacityError ? <Text style={styles.errorText}>{EngineCapacityError}</Text> : null}
          
-         
+          <CylinderNumDropdown data={cylinderNumdata} onSelect={setcylinderNum} />
           <DropdownComponent data={fuelData} onSelect={setFuel} />
           <VehicleTypeDropdown data={vehicleTypeData} onSelect={setVehicleType} />
-          <CylinderNumDropdown data={cylinderNumdata} onSelect={setcylinderNum} />
-
          
 
 
@@ -295,9 +298,9 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000000',
-    borderTopRightRadius: 100,
-    borderTopLeftRadius: 100,
-    height: '80%',
+    borderTopRightRadius: 160,
+    borderTopLeftRadius: 160,
+    height: '90%',
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
