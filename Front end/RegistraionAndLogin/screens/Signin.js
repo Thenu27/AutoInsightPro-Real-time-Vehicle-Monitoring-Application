@@ -23,12 +23,25 @@ const Login = ({ navigation }) => {
       });
   }, []);
 
-  const handleDelete = (index) => {
-    // Copy the vehicles array and remove the vehicle at the specified index
-    const updatedVehicles = [...VehicleSave];
-    updatedVehicles.splice(index, 1);
-    setVehicles(updatedVehicles);
+  const handleDelete = (vehicleNum, index) => {
+    fetch(`http://192.168.1.13:8080/vehicle/delete/${vehicleNum}`, {
+      method: 'DELETE'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to delete vehicle');
+      }
+      // If deletion is successful, update the state to reflect the deletion
+      const updatedVehicles = [...VehicleSave];
+      updatedVehicles.splice(index, 1);
+      setVehicles(updatedVehicles);
+    })
+    .catch(error => {
+      console.error('Error deleting vehicle:', error);
+      setError('Failed to delete vehicle');
+    });
   };
+  
 
   return (
     <SafeAreaView style={styles.container2}>
@@ -43,18 +56,20 @@ const Login = ({ navigation }) => {
               <Text style={styles.errorText}>{error}</Text>
             ) : (
               VehicleSave.map((vehicle, index) => (
-                <View key={index} style={styles.inputContainer}>
+                <View key={index} style={styles.inputContainer}>  
 
-                  <TextInput
-                      style={styles.inputBox}
-                      value={vehicle.vehicleNum ? vehicle.vehicleNum.toString() : ''}
-                      editable={false}
-                    />
 
-                  
-                  <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(index)}>
-                    <Icon name="trash" size={20} color="red" />
-                  </TouchableOpacity>
+                <TextInput
+                  style={styles.inputBox}
+                  value={`Vehicle Number: ${vehicle.vehicleNum}`}
+                  editable={false}
+                />
+
+
+<TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(vehicle.vehicleNum, index)}>
+  <Icon name="trash" size={20} color='#3AB0FF' />
+</TouchableOpacity>
+
                 </View>
               ))
             )}
@@ -97,7 +112,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width:200,
+    width:270,
     
   },
   inputBox: {
