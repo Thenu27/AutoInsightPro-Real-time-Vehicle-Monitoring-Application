@@ -20,7 +20,7 @@ const DropdownComponent = ({ data, onSelect }) => {
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder='Fuel type'
+        placeholder='Fuel Type'
         value={value || null}
         onChange={handleChange}
       />
@@ -29,6 +29,33 @@ const DropdownComponent = ({ data, onSelect }) => {
 };
 
 const VehicleTypeDropdown = ({ data, onSelect }) => {
+  const [value, setValue] = useState('');
+
+  const handleChange = (item) => {
+    
+    setValue(item.value);
+    onSelect(item.label); // Pass the selected label to the parent component
+  };
+
+  return (
+    <View>
+      <Dropdown
+        style={styles.dropdown}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        data={data}
+        maxHeight={300}
+        labelField="label"
+        valueField="value"
+        placeholder='Vehicle Type'
+        value={value || null}
+        onChange={handleChange}
+      />
+    </View>
+  );
+};
+
+const CylinderNumDropdown = ({ data, onSelect }) => {
   const [value, setValue] = useState('');
 
   const handleChange = (item) => {
@@ -46,13 +73,16 @@ const VehicleTypeDropdown = ({ data, onSelect }) => {
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder='Vehicle type'
+        placeholder='Vehicle Cylinders Number'
         value={value || null}
         onChange={handleChange}
       />
     </View>
   );
 };
+
+
+
 
 export default function Login({ navigation }) {
   const fuelData = [
@@ -61,20 +91,43 @@ export default function Login({ navigation }) {
   ];
 
   const vehicleTypeData = [
-    { label: 'Car', value: 'car' },
-    { label: 'Van', value: 'van' },
-    { label: 'Bus', value: 'bus' },
+    { label: 'Sedan', value: '1' },
+    { label: 'Hatchback', value: '2' },
+    { label: 'SUV', value: '3' },
+    { label: 'Pickup', value: '4' },
+    { label: 'Van', value: '5' },
   ];
 
-  const [Fuel, setFuel] = useState('');
-  const [VehicleType, setVehicleType] = useState('');
-  const [VehicleNumber, setVehicleNumber] = useState('');
-  const [EngineCapacity, setEngineCapacity] = useState('');
-  const [EngineCapacityError, setEngineCapacityError] = useState('');
-  const [enteredEngineCapacity, setEnteredEngineCapacity] = useState('');
-  const [ManuYear, setManuYear] = useState('');
+
+  const cylinderNumdata = [
+    { label: '3', value: '1' },
+    { label: '4', value: '2' },
+    { label: '5', value: '3' },
+    { label: '6', value: '4' },
+    { label: '8', value: '5' },
+    { label: '9', value: '6' },
+    { label: '12', value: '7' },
+  ];
+
+  const [fuel, setFuel] = useState('');  
+  const [type, setVehicleType] = useState('');
+
+  const [cylinderNum, setcylinderNum] = useState('');
+
+  const [vehicleNum, setvehicleNum] = useState('');
+  
+ 
+  const [year, setManuYear] = useState('');
   const [ManuYearError, setManuYearError] = useState('');
   const [enteredManuYear, setEnteredManuYear] = useState('');
+
+  const [engineCapacity, setEngineCapacity] = useState('');
+  const [EngineCapacityError, setEngineCapacityError] = useState('');
+  const [enteredEngineCapacity, setEnteredEngineCapacity] = useState('');
+
+  
+ 
+
 
   const handleChangeEngineCapacity = (text) => {
     setEnteredEngineCapacity(text);
@@ -86,6 +139,10 @@ export default function Login({ navigation }) {
     }
   };
 
+ 
+
+
+
   const handleChangeManuYear = (text) => {
     setManuYear(text);
     if (/^\d*$/.test(text) && Number(text) >= 2006) {
@@ -96,28 +153,9 @@ export default function Login({ navigation }) {
     }
   };
 
-  const handleClick = (e) => {
-    e.preventDefault();
+  
 
-    if (!VehicleNumber || !EngineCapacity || !Fuel || !VehicleType || !ManuYear) {
-      console.error('Please fill in all fields');
-      return;
-    }
-
-    if (EngineCapacityError) {
-      console.error('Please enter a valid Engine Capacity');
-      return;
-    }
-
-    if (ManuYearError) {
-      console.error('Please enter a valid Manufacture Year');
-      return;
-    }
-
-    const vehicle = { VehicleNumber, EngineCapacity, Fuel, VehicleType, ManuYear };
-    console.log(vehicle);
-
-    fetch("http://10.31.8.186:8081/vehicle/adding", {
+   /* fetch("http://192.168.1.13:8080/vehicle-save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(vehicle)
@@ -135,8 +173,72 @@ export default function Login({ navigation }) {
     .catch(error => {
       console.error('Error:', error);
       // Handle any errors
+      
+     });
+  };*/
+
+
+
+  const handleClick = (e) => {
+    e.preventDefault();
+  
+    // Validate input fields
+    if (!vehicleNum || !engineCapacity || !fuel || !type || !year || !cylinderNum) {
+      console.error('Please fill in all fields');
+      return;
+    }
+  
+    if (EngineCapacityError) {
+      console.error('Please enter a valid Engine Capacity');
+      return;
+    }
+  
+    if (ManuYearError) {
+      console.error('Please enter a valid Manufacture Year');
+      return;
+    }
+  
+    
+  
+    // Construct payload object
+    const payload = {
+      vehicleNum,
+      engineCapacity: parseInt(engineCapacity),
+      fuel,
+      type,
+      year: parseInt(year),
+      cylinderNum: parseInt(cylinderNum),
+    };
+  
+    // Log the payload object
+    console.log('Payload:', payload);
+  
+    // Send POST request to the backend
+    fetch("http://192.168.1.13:8080/vehicle-save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('You allready add this vehicle details');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Success:', data);
+      setvehicleNum('');
+      setEngineCapacity('');
+      setManuYear('');
+      
+    })
+    
+    .catch(error => {
+      console.error('Error:', error);
+      // Handle any errors
     });
   };
+  
 
   return (
     <SafeAreaView style={styles.container2}>
@@ -148,25 +250,33 @@ export default function Login({ navigation }) {
        
         <ScrollView>
           <View  style={styles.scrollViewContent}>
+          
           <TextInput
             style={styles.inputBox}
             placeholder='Vehicle Number'
-            value={VehicleNumber}
-            onChangeText={(text) => setVehicleNumber(text)}
+            value={vehicleNum}
+            onChangeText={(text) => setvehicleNum(text)}
           />
+
           <TextInput
             style={styles.inputBox}
             placeholder='Engine Capacity'
-            value={enteredEngineCapacity}
+            value={engineCapacity}
             onChangeText={handleChangeEngineCapacity}
           />
           {EngineCapacityError ? <Text style={styles.errorText}>{EngineCapacityError}</Text> : null}
+         
+          <CylinderNumDropdown data={cylinderNumdata} onSelect={setcylinderNum} />
           <DropdownComponent data={fuelData} onSelect={setFuel} />
           <VehicleTypeDropdown data={vehicleTypeData} onSelect={setVehicleType} />
+         
+
+
+
           <TextInput
             style={styles.inputBox}
             placeholder='Manufacture Year'
-            value={ManuYear}
+            value={year}
             onChangeText={handleChangeManuYear}
           />
           {ManuYearError ? <Text style={styles.errorText}>{ManuYearError}</Text> : null}
@@ -188,9 +298,9 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000000',
-    borderTopRightRadius: 100,
-    borderTopLeftRadius: 100,
-    height: '80%',
+    borderTopRightRadius: 160,
+    borderTopLeftRadius: 160,
+    height: '90%',
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',

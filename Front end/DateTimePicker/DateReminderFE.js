@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, Alert, Modal } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function DateReminderFE() {
   const [licenseDate, setLicenseDate] = useState(new Date());
@@ -13,28 +14,63 @@ export default function DateReminderFE() {
   const [showInsuranceDatePicker, setShowInsuranceDatePicker] = useState(false);
   const [showInsuranceTimePicker, setShowInsuranceTimePicker] = useState(false);
 
+  const [licenseModalVisible, setLicenseModalVisible] = useState(false);
+  const [insuranceModalVisible, setInsuranceModalVisible] = useState(false);
+
   const handleLicenseDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || licenseDate;
     setShowLicenseDatePicker(false);
     setLicenseDate(currentDate);
+
+    // Update database with the selected license date
+    updateDatabase({
+      licenseDate: currentDate,
+      licenseTime,
+      insuranceDate,
+      insuranceTime
+    });
   };
 
   const handleLicenseTimeChange = (event, selectedTime) => {
     const currentTime = selectedTime || licenseTime;
     setShowLicenseTimePicker(false);
     setLicenseTime(currentTime);
+
+    // Update database with the selected license time
+    updateDatabase({
+      licenseDate,
+      licenseTime: currentTime,
+      insuranceDate,
+      insuranceTime
+    });
   };
 
   const handleInsuranceDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || insuranceDate;
     setShowInsuranceDatePicker(false);
     setInsuranceDate(currentDate);
+
+    // Update database with the selected insurance date
+    updateDatabase({
+      licenseDate,
+      licenseTime,
+      insuranceDate: currentDate,
+      insuranceTime
+    });
   };
 
   const handleInsuranceTimeChange = (event, selectedTime) => {
     const currentTime = selectedTime || insuranceTime;
     setShowInsuranceTimePicker(false);
     setInsuranceTime(currentTime);
+
+    // Update database with the selected insurance time
+    updateDatabase({
+      licenseDate,
+      licenseTime,
+      insuranceDate,
+      insuranceTime: currentTime
+    });
   };
 
   const formatTime = (time) => {
@@ -42,44 +78,54 @@ export default function DateReminderFE() {
   };
 
   const setReminder = () => {
-    
-    const licenseDateTime = new Date(licenseDate.getFullYear(), licenseDate.getMonth(), licenseDate.getDate(), licenseTime.getHours(), licenseTime.getMinutes());// Calculate the time until license and insurance expiry
+    // Calculate the time until license and insurance expiry
+    const licenseDateTime = new Date(licenseDate.getFullYear(), licenseDate.getMonth(), licenseDate.getDate(), licenseTime.getHours(), licenseTime.getMinutes());
     const insuranceDateTime = new Date(insuranceDate.getFullYear(), insuranceDate.getMonth(), insuranceDate.getDate(), insuranceTime.getHours(), insuranceTime.getMinutes());
-
+  
     const licenseTimeRemaining = licenseDateTime.getTime() - Date.now();
     const insuranceTimeRemaining = insuranceDateTime.getTime() - Date.now();
+  
+    // Show the license expiry modal
+    if (licenseTimeRemaining <= 0) {
+      setLicenseModalVisible(true);
+    }
+  
+    // Show the insurance expiry modal
+    if (insuranceTimeRemaining <= 0) {
+      setInsuranceModalVisible(true);
+    }
 
-    
-    setTimeout(() => {// /setting for License expiry date
-      alert('License Expiry Reminder: Your license is about to expire!');
-    }, licenseTimeRemaining); 
-
-    
-    setTimeout(() => {//setting for Insurance expiry date
-      alert('Insurance Expiry Reminder: Your insurance is about to expire!');
-    }, insuranceTimeRemaining);
+    // Update database with the selected dates and times
+    updateDatabase({
+      licenseDate,
+      licenseTime,
+      insuranceDate,
+      insuranceTime
+    });
   };
 
-  const dateTime = { licenseDate, licenseTime, insuranceDate, insuranceTime };
-
-  fetch("http://192.168.1.13:8081/dateTime/add", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(dateTime)
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  })
-  .then(data => {
-    console.log('Success:', data);
-    // Handle success response from backend
-  })
-  .catch(error => {
-    console.error('Error:', error);//haddling any error out of scope    
-  });
+  const updateDatabase = (data) => {
+    // Send POST request to update the database
+    fetch("http://192.168.1.13:8080/dateTime-save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to update database');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Database updated successfully:', data);
+      // Handle success response from the database
+    })
+    .catch(error => {
+      console.error('Error updating database:', error);
+      // Handle any errors
+    });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -97,7 +143,7 @@ export default function DateReminderFE() {
             value={licenseDate.toLocaleDateString()}
           />
           {showLicenseDatePicker && (
-            <DateTimePicker
+            <DateTimePicker            
               mode='date'
               display='spinner'
               value={licenseDate}
@@ -125,33 +171,49 @@ export default function DateReminderFE() {
           <Text style={styles.nrrText}>
             Select <Text style={styles.specialBlue}>Insurance Expiration Date and Time</Text>
           </Text>
+         
+
+
           <TextInput
             style={styles.inputBox}
             placeholder='Insurance Expiration Date'
             onFocus={() => setShowInsuranceDatePicker(true)}
-            value={insuranceDate.toLocaleDateString()}
+            value={insuranceDate.toLocaleDateString()}            
+            pointerEvents="none" // Disable pointer events
+             
           />
+
+
           {showInsuranceDatePicker && (
-            <DateTimePicker//upto date validation (checks currunt date)
+            <DateTimePicker
               mode='date'
               display='spinner'
               value={insuranceDate}
               onChange={handleInsuranceDateChange}
-              minimumDate={new Date()} 
+              minimumDate={new Date()} // Disable selecting past dates              
+            pointerEvents="none" // Disable pointer events
+             
             />
           )}
+
+
           <TextInput
             style={styles.inputBox}
             placeholder='Insurance Expiration Time'
             onFocus={() => setShowInsuranceTimePicker(true)}
-            value={formatTime(insuranceTime)}
+            value={formatTime(insuranceTime)}          
+            pointerEvents="none" // Disable pointer events
           />
+
+
           {showInsuranceTimePicker && (
             <DateTimePicker
               mode='time'
               display='spinner'
               value={insuranceTime}
               onChange={handleInsuranceTimeChange}
+              editable={false} // Disable editing
+            pointerEvents="none" // Disable pointer events
             />
           )}
         </View>
@@ -160,20 +222,89 @@ export default function DateReminderFE() {
           <Text style={styles.buttonText}>Set Reminder</Text>
         </TouchableOpacity>
 
+
+
+
+{/* License Modal */}
+<Modal
+          animationType="slide"
+          transparent={true}
+          visible={licenseModalVisible}
+          onRequestClose={() => {
+            setLicenseModalVisible(false);
+          }}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              
+              <Text style={styles.modalText2}>License Expiry Reminder</Text>              
+              <Text style={styles.modelnrrText}> License Expiry Reminder : Your license is about to expire!</Text>
+         
+              <TouchableOpacity
+                style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
+                onPress={() => {
+                  setLicenseModalVisible(false);
+                }}
+              >
+                <Text style={styles.textStyle}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>          
+        </Modal>
+
+        {/* Insurance Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={insuranceModalVisible}
+          onRequestClose={() => {
+            setInsuranceModalVisible(false);
+          }}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+             
+              <Text style={styles.modalText2}>Insurance Expiry Reminder</Text>              
+              <Text style={styles.modelnrrText}> Insurance Expiry Reminder: Your insurance is about to expire!</Text>
+                          
+              <TouchableOpacity
+                style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
+                onPress={() => {
+                  setInsuranceModalVisible(false);
+                }}
+              >
+                <Text style={styles.textStyle}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>          
+        </Modal>
+
+
+
+
         <StatusBar style="auto" />
+         
       </View>
+
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <View style={styles.btn}>
+            <Icon name="home" size={30} color="white" />
+          </View>
+        </TouchableOpacity>  
+
+
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {//main background stylings
+  container: {
     flex: 1,
     backgroundColor: '#272829',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  container3: {//core container styling for lisence 
+  container3: {
     width:"85%",
     flex: 1,
     backgroundColor: 'transparent',
@@ -184,7 +315,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 20,
   },
-  container4: {//core container styling for Insu
+  container4: {
     width:"85%",
     flex: 1,
     backgroundColor: 'transparent',
@@ -195,12 +326,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   subView: {
-    height: '90%',
+    height: '85%',
     width: '90%',
     backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 20,
+    marginTop:30,
   },
   heading: {
     paddingTop: 50,
@@ -245,5 +377,76 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
+ 
+  btn: {
+    backgroundColor: '#2CB3FF',
+    marginTop: 10,
+    marginBottom:10,
+    borderRadius: 30,
+    color: 'white',
+    width: 60,
+    height:60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'white'
+  }, 
+
+centeredView: {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  marginTop: 22
+},
+modalView: {
+  margin: 20,
+  backgroundColor: "#272829",
+  borderRadius: 20,
+  padding: 35,
+  alignItems: "center",
+  width:"85%",
+  shadowColor: "#000",
+  borderColor: '#ffffff',
+    borderWidth: 3,
+  shadowOffset: {
+    width: 0,
+    height: 2
+  },
+  shadowOpacity: 0.25,
+  shadowRadius: 4,
+  elevation: 5
+},
+openButton: {
+ // backgroundColor: "#F194FF",
+  borderRadius: 20,
+  padding: 10,
+  //elevation: 2
+},
+textStyle: {
+  color: "white",
+  fontWeight: "bold",
+  textAlign: "center"
+},
+modalText: {
+  color: "white",
+  marginBottom: 15,
+  textAlign: "center",
+  fontWeight: "bold"   
+},
+
+modalText2: {
+  color: '#3AB0FF',
+  marginBottom: 15,
+  textAlign: "center",
+  fontWeight: "bold",
+  fontSize: 18,
+ },
+
+ modelnrrText: {
+  color: '#ffffff',
+  fontWeight: 'bold',
+  marginBottom: 20,
+},
+
 });
 
