@@ -1,57 +1,88 @@
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-# Load and prepare the training dataset
-data_path_training = r"C:\Users\MSI\OneDrive\Desktop\SDGP\2017-07-05_Seat_Leon_RT_S_Stau.csv"
+
+# Loading and preparing the training dataset
+data_path_training = r"C:\Users\MSI\OneDrive\Desktop\SDGP\drive1.csv"
 data_training = pd.read_csv(data_path_training)
 
-# Initial data cleaning for the training dataset
-data_training = data_training.dropna(how='all', subset=data_training.columns[1:])  # Ignore 'Time' for dropping rows
+# Initialing data cleaning for the training dataset
+data_training = data_training.dropna(how='all', subset=data_training.columns[1:])
 numeric_columns_training = data_training.select_dtypes(include=['number']).columns
-data_training[numeric_columns_training] = data_training[numeric_columns_training].fillna(data_training[numeric_columns_training].mean(), inplace=False)
+data_training[numeric_columns_training] = data_training[numeric_columns_training].fillna(data_training[numeric_columns_training].mean())
 
-# Define thresholds for potential issues and optimal ranges for the training dataset
+# Defining thresholds for potential issues and optimal ranges for the training dataset
 thresholds = {
-    'Engine Coolant Temperature': {'high': 90, 'optimal_range': (70, 90)},
-    'Engine RPM [RPM]': {'low': 500, 'high': 4000, 'optimal_range': (800, 3000)},
-    'Vehicle Speed Sensor [km/h]': {'low': 0, 'high': 200, 'optimal_range': (0, 130)},
-    'Intake Air Temperature': {'high': 50, 'optimal_range': (10, 35)},
-    'Air Flow Rate from Mass Flow Sensor [g/s]': {'low': 10, 'optimal_range': (15, 100)}
+    'COOLANT_TEMPERATURE ()': {'high': 90, 'optimal_range': (70, 90)},
+    'ENGINE_RPM ()': {'low': 500, 'high': 4000, 'optimal_range': (800, 3000)},
+    'VEHICLE_SPEED ()': {'low': 0, 'high': 200, 'optimal_range': (0, 130)},
+    'INTAKE_AIR_TEMP ()': {'high': 50, 'optimal_range': (10, 35)},
+    'FUEL_TRIM': {'low': -10, 'high': 10, 'optimal_range': (-5, 5)}  # Example threshold for fuel trim issues
 }
 
 # Adding a synthetic target variable for the training dataset
-data_training['MaintenanceNeeded'] = ((data_training['Engine Coolant Temperature '] > thresholds['Engine Coolant Temperature']['high']) |
-                                      (data_training['Engine RPM [RPM]'] < thresholds['Engine RPM [RPM]']['low']) |
-                                      (data_training['Engine RPM [RPM]'] > thresholds['Engine RPM [RPM]']['high']) |
-                                      (data_training['Vehicle Speed Sensor [km/h]'] > thresholds['Vehicle Speed Sensor [km/h]']['high']) |
-                                      (data_training['Intake Air Temperature'] > thresholds['Intake Air Temperature']['high']) |
-                                      (data_training['Air Flow Rate from Mass Flow Sensor [g/s]'] < thresholds['Air Flow Rate from Mass Flow Sensor [g/s]']['low'])).astype(int)
+data_training['MaintenanceNeeded'] = (
+    (data_training['COOLANT_TEMPERATURE ()'] > thresholds['COOLANT_TEMPERATURE ()']['high']) |
+    (data_training['ENGINE_RPM ()'] < thresholds['ENGINE_RPM ()']['low']) |
+    (data_training['ENGINE_RPM ()'] > thresholds['ENGINE_RPM ()']['high']) |
+    (data_training['VEHICLE_SPEED ()'] > thresholds['VEHICLE_SPEED ()']['high']) |
+    (data_training['INTAKE_AIR_TEMP ()'] > thresholds['INTAKE_AIR_TEMP ()']['high']) |
+    (data_training['SHORT_TERM_FUEL_TRIM_BANK_1 ()'].between(thresholds['FUEL_TRIM']['low'],
+                                                             thresholds['FUEL_TRIM']['high'],
+                                                             inclusive='neither') == False) |
+    (data_training['LONG_TERM_FUEL_TRIM_BANK_1 ()'].between(thresholds['FUEL_TRIM']['low'],
+                                                            thresholds['FUEL_TRIM']['high'],
+                                                            inclusive='neither') == False)
+
+).astype(int)
 
 # Preparing features and labels for the training dataset
-X_train = data_training[numeric_columns_training]
-y_train = data_training['MaintenanceNeeded']
+X = data_training[numeric_columns_training]
+y = data_training['MaintenanceNeeded']
 
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+# Checking for infinite values and replace them if any
+if np.isinf(X_train).values.sum() > 0:
+    X_train = X_train.replace([np.inf, -np.inf], np.nan).fillna(0)
+# Converting to float32 to ensure compatibility
+X_train = X_train.astype('float32')
 # Training the Random Forest Classifier
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-# Load and prepare a new dataset for generating the health report
-data_path_health_report = r"C:\Users\MSI\OneDrive\Desktop\SDGP\2017-07-05_Seat_Leon_S_KA_Normal.csv"  # Update this path to your new dataset
+y_pred = model.predict(X_test.astype('float32'))
+
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred)
+
+#print(f"Accuracy: {accuracy:.4f}")
+#print(f"Precision: {precision:.4f}")
+#print(f"Recall: {recall:.4f}")
+#print(f"F1 Score: {f1:.4f}")
+
+# Loading and preparing a new dataset for generating the health report
+data_path_health_report = r"C:\Users\MSI\OneDrive\Desktop\SDGP\archive\live8.csv"
 data_health_report = pd.read_csv(data_path_health_report)
 
-
-# Apply similar initial data cleaning steps to the health report dataset
+# Applying similar initial data cleaning steps to the health report dataset
 data_health_report = data_health_report.dropna(how='all', subset=data_health_report.columns[1:])  # Ignore 'Time' for dropping rows
 numeric_columns_health_report = data_health_report.select_dtypes(include=['number']).columns
-data_health_report[numeric_columns_health_report] = data_health_report[numeric_columns_health_report].fillna(data_health_report[numeric_columns_health_report].mean(), inplace=False)
+data_health_report[numeric_columns_health_report] = data_health_report[numeric_columns_health_report].fillna(data_health_report[numeric_columns_health_report].mean())
 
-# Use the trained model to predict maintenance needs on the new dataset
-X_new = data_health_report[numeric_columns_health_report]
+# Preparing features for prediction
+X_new = data_health_report[numeric_columns_health_report].astype('float32')  # Ensure data type compatibility
+
+# Using the trained model to predict maintenance needs on the new dataset
 data_health_report['PredictedMaintenanceNeeded'] = model.predict(X_new)
 
-# Function to identify issues for the summary report on the new dataset
 def identify_common_issues(data, thresholds):
     issue_counts = {issue: 0 for issue in thresholds.keys()}
     for index, row in data.iterrows():
@@ -66,38 +97,47 @@ def identify_common_issues(data, thresholds):
 
 # Generating a summary report for the new dataset
 common_issues = identify_common_issues(data_health_report, thresholds)
-print(common_issues)
 
-print("\nMaintenance Summary Report :")
+
+print("\n---Maintenance Summary Report---")
 for issue, count in common_issues.items():
-    if count > 0:
-        print(f"- {issue} was identified as an issue in {count} instances.")
+    if count >0 :
+        print(f" {issue} was identified as an issue in {count} instances.")
 
 # General recommendations based on common issues
-print("\nGeneral Maintenance Recommendations:")
+print("\n---Maintenance Recommendations---")
 
 
-if any(count > 0 for count in common_issues.values()):
+if any(count >100 for count in common_issues.values()):
 
     recommendations_given = set()
 
     for issue, count in common_issues.items():
-        if count > 0:
-            if issue == 'Engine RPM [RPM]' and 'engine_inspection' not in recommendations_given:
-                print("- Check the engine system.")
+        if count > 100:
+            if issue == 'ENGINE_RPM ()' and 'engine_inspection' not in recommendations_given:
+                print(" Check the engine system.")
                 recommendations_given.add('engine_inspection')
 
-            elif issue == 'Vehicle Speed Sensor [km/h]'  and 'sensor_inspection' not in recommendations_given:
-                print("- Recommend checking the sensor for any issues.")
+            elif issue == 'VEHICLE_SPEED ()'and 'sensor_inspection' not in recommendations_given:
+                print("  Recommend checking the sensor for any issues.")
                 recommendations_given.add('sensor_inspection')
 
-            elif issue == 'Engine Coolant Temperature' or issue == 'Intake Air Temperature' and 'coolant' not in recommendations_given:
-                print("- Check and maintain proper coolant levels and inspect the cooling system.")
+            elif issue == 'COOLANT_TEMPERATURE ()'  and 'coolant' not in recommendations_given:
+                print(" Check and maintain proper coolant levels and inspect the cooling system.")
                 recommendations_given.add('coolant')
 
-            elif issue == 'Air Flow Rate from Mass Flow Sensor [g/s]' and 'Air Flow' not in recommendations_given:
-                print("- Check air intake system and associated components")
-                recommendations_given.add('Air Flow')
+
+            elif issue == 'INTAKE_AIR_TEMP ()' and 'AirIntakeIsuue' not in recommendations_given:
+                print(' Inspect the Air Intake System')
+                recommendations_given.add('AirIntakeIsuue')
+
+            elif issue == 'FUEL_TRIM' and 'FuelIssue' not in recommendations_given:
+                print('  Inspect Oxygen sensors,Air Filter and Check for Vacuum Leaks')
 
 else:
-    print("\nNo common issues identified requiring general maintenance recommendations.")
+    print("\nNo major issues identified requiring general maintenance recommendations.")
+
+
+
+
+
