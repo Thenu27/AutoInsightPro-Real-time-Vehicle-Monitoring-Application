@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { StatusBar, StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native'; // Added Modal import
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Login = ({ navigation }) => {
   const [VehicleSave, setVehicles] = useState([]);
   const [error, setError] = useState(null); // State to store network request error
+  const [licenseModalVisible, setLicenseModalVisible] = useState(false); // State for modal visibility
 
   useEffect(() => {
     fetch("http://192.168.1.13:8080/vehicle/get-vehicles")
@@ -29,61 +30,75 @@ const Login = ({ navigation }) => {
     })
     .then(response => {
       if (!response.ok) {
-        throw new Error('Failed to delete vehicle');
+        throw new Error('Failed to delete vehicle, Please try again ');
       }
       // If deletion is successful, update the state to reflect the deletion
       const updatedVehicles = [...VehicleSave];
       updatedVehicles.splice(index, 1);
       setVehicles(updatedVehicles);
+      setLicenseModalVisible(true); // Show success modal
     })
     .catch(error => {
       console.error('Error deleting vehicle:', error);
       setError('Failed to delete vehicle');
     });
   };
-  
 
   return (
     <SafeAreaView style={styles.container2}>
       <View style={styles.container}>
         <Text style={styles.mainText}>LOGIN</Text>
-        
-          <Text style={styles.nrText}> Select your <Text style={styles.specialBlue}>Account</Text></Text>
+        <Text style={styles.nrText}> Select your <Text style={styles.specialBlue}>Account</Text></Text>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-         
           <View>
             {error ? (
               <Text style={styles.errorText}>{error}</Text>
             ) : (
               VehicleSave.map((vehicle, index) => (
-                <View key={index} style={styles.inputContainer}>  
-
-
-                <TextInput
-                  style={styles.inputBox}
-                  value={`Vehicle Number: ${vehicle.vehicleNum}`}
-                  editable={false}
-                />
-
-
-<TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(vehicle.vehicleNum, index)}>
-  <Icon name="trash" size={20} color='#3AB0FF' />
-</TouchableOpacity>
-
+                <View key={index} style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.inputBox}
+                    value={`Vehicle Number: ${vehicle.vehicleNum}`}
+                    editable={false}
+                  />
+                  <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(vehicle.vehicleNum, index)}>
+                    <Icon name="trash" size={20} color='#3AB0FF' />
+                  </TouchableOpacity>
                 </View>
               ))
             )}
-         
-           
           </View>
         </ScrollView>
         <Text style={styles.normalText}>If you don't have an account</Text>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText} 
-          onPress={() => navigation.navigate("Register")}>Register</Text>
+          <Text style={styles.buttonText} onPress={() => navigation.navigate("Register")}>Register</Text>
         </TouchableOpacity>
       </View>
       <StatusBar style="auto" />
+      {/* Modal for success message */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={licenseModalVisible}
+        onRequestClose={() => {
+          setLicenseModalVisible(false);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText2}>Deleted!</Text>
+            <Text style={styles.modelnrrText}>The vehicle details deleted successfully</Text>
+            <TouchableOpacity
+              style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
+              onPress={() => {
+                setLicenseModalVisible(false);
+              }}
+            >
+              <Text style={styles.textStyle}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -168,6 +183,64 @@ const styles = StyleSheet.create({
   deleteButton: {
     marginLeft: 10,
   },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "#272829",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    width:"85%",
+    shadowColor: "#000",
+    borderColor: '#ffffff',
+      borderWidth: 1,
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  openButton: {
+   // backgroundColor: "#F194FF",
+    borderRadius: 20,
+    padding: 10,
+    //elevation: 2
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    color: "white",
+    marginBottom: 15,
+    textAlign: "center",
+    fontWeight: "bold"   
+  },
+  
+  modalText2: {
+    color: '#3AB0FF',
+    marginBottom: 15,
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 18,
+   },
+  
+   modelnrrText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    marginBottom: 20,
+    fontSize:13,
+  },
+
 });
 
 export default Login;
