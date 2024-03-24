@@ -3,8 +3,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 
-# --- Train the model with the initial dataset ---
-# Load the initial dataset
+# --- Training the model with the initial dataset ---
+# Loading the initial dataset
 initial_data_path = "2017-07-05_Seat_Leon_S_KA_Normal.csv"  # Update this path
 initial_data = pd.read_csv(initial_data_path)
 
@@ -26,8 +26,8 @@ model.fit(X_train, y_train)
 predictions_initial = model.predict(X_test)
 print(classification_report(y_test, predictions_initial))
 
-# --- Predict with a new dataset using the trained model ---
-# Load the new dataset
+# --- Predicting with a new dataset using the trained model ---
+# Loading the new dataset
 new_data_path = "drive1.csv"  # Update this path
 new_data = pd.read_csv(new_data_path)
 
