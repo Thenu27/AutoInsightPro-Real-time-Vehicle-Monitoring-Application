@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, Alert, Modal } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, Modal, KeyboardAvoidingView } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function DateReminderFE() {
-  const [licenseDate, setLicenseDate] = useState(new Date());
-  const [licenseTime, setLicenseTime] = useState(new Date());
-  const [insuranceDate, setInsuranceDate] = useState(new Date());
-  const [insuranceTime, setInsuranceTime] = useState(new Date());
+  const [licenseDate, setLicenseDate] = useState(null);
+  const [licenseTime, setLicenseTime] = useState(null);
+  const [insuranceDate, setInsuranceDate] = useState(null);
+  const [insuranceTime, setInsuranceTime] = useState(null);
   const [showLicenseDatePicker, setShowLicenseDatePicker] = useState(false);
   const [showLicenseTimePicker, setShowLicenseTimePicker] = useState(false);
   const [showInsuranceDatePicker, setShowInsuranceDatePicker] = useState(false);
@@ -17,67 +17,50 @@ export default function DateReminderFE() {
   const [licenseModalVisible, setLicenseModalVisible] = useState(false);
   const [insuranceModalVisible, setInsuranceModalVisible] = useState(false);
 
+  const [ErrorModalVisible, setErrorModalVisible] = useState(false);
+  
+
   const handleLicenseDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || licenseDate;
     setShowLicenseDatePicker(false);
     setLicenseDate(currentDate);
-
-    // Update database with the selected license date
-    updateDatabase({
-      licenseDate: currentDate,
-      licenseTime,
-      insuranceDate,
-      insuranceTime
-    });
+   
+    
+    
+    
+   
   };
 
   const handleLicenseTimeChange = (event, selectedTime) => {
     const currentTime = selectedTime || licenseTime;
     setShowLicenseTimePicker(false);
     setLicenseTime(currentTime);
-
-    // Update database with the selected license time
-    updateDatabase({
-      licenseDate,
-      licenseTime: currentTime,
-      insuranceDate,
-      insuranceTime
-    });
+    
   };
 
   const handleInsuranceDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || insuranceDate;
     setShowInsuranceDatePicker(false);
     setInsuranceDate(currentDate);
-
-    // Update database with the selected insurance date
-    updateDatabase({
-      licenseDate,
-      licenseTime,
-      insuranceDate: currentDate,
-      insuranceTime
-    });
   };
 
   const handleInsuranceTimeChange = (event, selectedTime) => {
     const currentTime = selectedTime || insuranceTime;
     setShowInsuranceTimePicker(false);
     setInsuranceTime(currentTime);
-
-    // Update database with the selected insurance time
-    updateDatabase({
-      licenseDate,
-      licenseTime,
-      insuranceDate,
-      insuranceTime: currentTime
-    });
   };
 
   const formatTime = (time) => {
     return `${time.getHours()}:${time.getMinutes() < 10 ? '0' : ''}${time.getMinutes()}`;
   };
 
+ 
   const setReminder = () => {
+
+    if (!licenseDate || !licenseTime || !insuranceDate || !insuranceTime) {
+      error( setErrorModalVisible(true));
+      return;
+    }
     // Calculate the time until license and insurance expiry
     const licenseDateTime = new Date(licenseDate.getFullYear(), licenseDate.getMonth(), licenseDate.getDate(), licenseTime.getHours(), licenseTime.getMinutes());
     const insuranceDateTime = new Date(insuranceDate.getFullYear(), insuranceDate.getMonth(), insuranceDate.getDate(), insuranceTime.getHours(), insuranceTime.getMinutes());
@@ -94,17 +77,23 @@ export default function DateReminderFE() {
     if (insuranceTimeRemaining <= 0) {
       setInsuranceModalVisible(true);
     }
+   
+  };
 
-    // Update database with the selected dates and times
+
+//console.log("data",updateDatabase)
+  const updateDatabase = (data) =>  {
+
     updateDatabase({
       licenseDate,
       licenseTime,
       insuranceDate,
       insuranceTime
     });
-  };
 
-  const updateDatabase = (data) => {
+    console.log("data:",updateDatabase)
+    
+
     // Send POST request to update the database
     fetch("http://192.168.1.13:8080/dateTime-save", {
       method: "POST",
@@ -125,11 +114,12 @@ export default function DateReminderFE() {
       console.error('Error updating database:', error);
       // Handle any errors
     });
-  };
-
+ 
+  }
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.subView}>
+      
+        <View style={styles.subView}>
         <Text style={styles.heading}>Expiry Date Reminder</Text>
 
         <View style={styles.container3}>
@@ -140,28 +130,29 @@ export default function DateReminderFE() {
             style={styles.inputBox}
             placeholder='License Expiration Date'
             onFocus={() => setShowLicenseDatePicker(true)}
-            value={licenseDate.toLocaleDateString()}
+            value={licenseDate ? licenseDate.toLocaleDateString() : ''}
           />
           {showLicenseDatePicker && (
-            <DateTimePicker            
+            <DateTimePicker
               mode='date'
               display='spinner'
-              value={licenseDate}
+              value={licenseDate || new Date()}
               onChange={handleLicenseDateChange}
               minimumDate={new Date()} // Disable selecting past dates
+              
             />
           )}
           <TextInput
             style={styles.inputBox}
             placeholder='License Expiration Time'
             onFocus={() => setShowLicenseTimePicker(true)}
-            value={formatTime(licenseTime)}
+            value={licenseTime ? formatTime(licenseTime) : ''}
           />
           {showLicenseTimePicker && (
             <DateTimePicker
               mode='time'
               display='spinner'
-              value={licenseTime}
+              value={licenseTime || new Date()}
               onChange={handleLicenseTimeChange}
             />
           )}
@@ -171,49 +162,33 @@ export default function DateReminderFE() {
           <Text style={styles.nrrText}>
             Select <Text style={styles.specialBlue}>Insurance Expiration Date and Time</Text>
           </Text>
-         
-
-
           <TextInput
             style={styles.inputBox}
             placeholder='Insurance Expiration Date'
             onFocus={() => setShowInsuranceDatePicker(true)}
-            value={insuranceDate.toLocaleDateString()}            
-            pointerEvents="none" // Disable pointer events
-             
+            value={insuranceDate ? insuranceDate.toLocaleDateString() : ''}
           />
-
-
           {showInsuranceDatePicker && (
             <DateTimePicker
               mode='date'
               display='spinner'
-              value={insuranceDate}
+              value={insuranceDate || new Date()}
               onChange={handleInsuranceDateChange}
-              minimumDate={new Date()} // Disable selecting past dates              
-            pointerEvents="none" // Disable pointer events
-             
+              minimumDate={new Date()} // Disable selecting past dates
             />
           )}
-
-
           <TextInput
             style={styles.inputBox}
             placeholder='Insurance Expiration Time'
             onFocus={() => setShowInsuranceTimePicker(true)}
-            value={formatTime(insuranceTime)}          
-            pointerEvents="none" // Disable pointer events
+            value={insuranceTime ? formatTime(insuranceTime) : ''}
           />
-
-
           {showInsuranceTimePicker && (
             <DateTimePicker
               mode='time'
               display='spinner'
-              value={insuranceTime}
+              value={insuranceTime || new Date()}
               onChange={handleInsuranceTimeChange}
-              editable={false} // Disable editing
-            pointerEvents="none" // Disable pointer events
             />
           )}
         </View>
@@ -279,11 +254,37 @@ export default function DateReminderFE() {
           </View>          
         </Modal>
 
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={ErrorModalVisible}
+          onRequestClose={() => {
+            setErrorModalVisible(false);
+          }}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.EmodalView}>
+             
+              <Text style={styles.EmodalText2}>Attention</Text>              
+              <Text style={styles.modelnrrText}> Please fill in all fields!</Text>
+                          
+              <TouchableOpacity
+                style={{ ...styles.openButton, backgroundColor: "red" }}
+                onPress={() => {
+                  setErrorModalVisible(false);
+                }}
+              >
+                <Text style={styles.textStyle}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>          
+        </Modal>
+
 
 
 
         <StatusBar style="auto" />
-         
+        
       </View>
 
       <TouchableOpacity onPress={() => navigation.navigate('Home')}>
@@ -447,6 +448,43 @@ modalText2: {
   fontWeight: 'bold',
   marginBottom: 20,
 },
+
+//sdfghjk
+
+EmodalView: {
+  margin: 20,
+  backgroundColor: "#272829",
+  borderRadius: 20,
+  padding: 35,
+  alignItems: "center",
+  width:"85%",
+  shadowColor: "#000",
+  borderColor: 'red',
+    borderWidth: 2,
+  shadowOffset: {
+    width: 0,
+    height: 2
+  },
+  shadowOpacity: 0.25,
+  shadowRadius: 4,
+  elevation: 5
+},
+EmodalText2: {
+  color: 'red',
+  marginBottom: 15,
+  textAlign: "center",
+  fontWeight: "bold",
+  fontSize: 18,
+ },
+
+
+
+
+
+
+
+
+
 
 });
 
