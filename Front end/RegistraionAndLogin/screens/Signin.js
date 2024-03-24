@@ -59,7 +59,7 @@ const Login = ({ navigation }) => {
 
 
 
-                <TouchableOpacity  style={styles.inputBox}  >
+                <TouchableOpacity  style={styles.inputBox} onPress={() => navigation.navigate("Register")}  >
                         
                         <TextInput   
                         style={styles.inputBox2}
@@ -87,7 +87,8 @@ const Login = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <StatusBar style="auto" />
-      {/* Modal for success message */}
+      
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -230,10 +231,8 @@ const styles = StyleSheet.create({
     elevation: 5
   },
   openButton: {
-   // backgroundColor: "#F194FF",
-    borderRadius: 20,
-    padding: 10,
-    //elevation: 2
+       borderRadius: 20,
+    padding: 10,    
   },
   textStyle: {
     color: "white",
