@@ -58,6 +58,39 @@ def post():
 
     # print(response.text)
 
+    @app.route('/predictFuel', methods=['POST'])
+    def predictFuel():
+        modelFuel = joblib.load('FuelEfficiencyModel.joblib')
+        # Extract data from the request
+        data = request.json
+        cylinders = float(data.get('cylinders'))
+        vehicle_type = data.get('type')
+        displacement = float(data.get('displacement'))
+
+        if vehicle_type == "SUV":
+            vehicle_type_value = 3500
+        elif vehicle_type == "Sedan":
+            vehicle_type_value = 3000
+        elif vehicle_type == "Hatchback":
+            vehicle_type_value = 2570
+        elif vehicle_type == "Pickup":
+            vehicle_type_value = 5000
+        elif vehicle_type == "Van":
+            vehicle_type_value = 4500
+        else:
+            # Default value if vehicle type is not recognized
+            vehicle_type_value = 2570
+
+        # Use the extracted data as input for prediction
+        input_data = [cylinders, vehicle_type_value, displacement, 10]
+
+        # Make predictions using the loaded model
+        predictionFuel = modelFuel.predict([input_data])
+        print(predictionFuel)
+        # Return the prediction as a JSON response
+
+        return jsonify({'prediction': predictionFuel.tolist()})
+
 
 if __name__ == '__main__':
     app.debug = True
