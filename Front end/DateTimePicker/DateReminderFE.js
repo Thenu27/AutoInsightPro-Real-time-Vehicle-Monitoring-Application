@@ -58,7 +58,7 @@ export default function DateReminderFE() {
   const setReminder = () => {
 
     if (!licenseDate || !licenseTime || !insuranceDate || !insuranceTime) {
-      error( setErrorModalVisible(true));
+      ( setErrorModalVisible(true));
       return;
     }
     // Calculate the time until license and insurance expiry
