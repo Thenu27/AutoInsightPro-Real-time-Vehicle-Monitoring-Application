@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StatusBar, StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { StatusBar, StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, ScrollView ,Modal} from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
 const DropdownComponent = ({ data, onSelect }) => {
@@ -85,6 +85,7 @@ const CylinderNumDropdown = ({ data, onSelect }) => {
 
 
 export default function Login({ navigation }) {
+
   const fuelData = [
     { label: 'Petrol', value: '1' },
     { label: 'Diesel', value: '2' },
@@ -125,10 +126,9 @@ export default function Login({ navigation }) {
   const [EngineCapacityError, setEngineCapacityError] = useState('');
   const [enteredEngineCapacity, setEnteredEngineCapacity] = useState('');
 
+  const [ModalVisible, setModalVisible] = useState(false); // State for modal visibility  
   
  
-
-
   const handleChangeEngineCapacity = (text) => {
     setEnteredEngineCapacity(text);
     if (/^\d*$/.test(text)) {
@@ -138,10 +138,6 @@ export default function Login({ navigation }) {
       setEngineCapacityError('Please enter only integers for Engine Capacity');
     }
   };
-
- 
-
-
 
   const handleChangeManuYear = (text) => {
     setManuYear(text);
@@ -177,8 +173,7 @@ export default function Login({ navigation }) {
      });
   };*/
 
-
-
+  
   const handleClick = (e) => {
     e.preventDefault();
   
@@ -220,18 +215,18 @@ export default function Login({ navigation }) {
       body: JSON.stringify(payload)
     })
     .then(response => {
-      if (!response.ok) {
-        throw new Error('You allready add this vehicle details');
+      if (!response.ok) {        
+        setModalVisible(true); // Show success modal        
       }
+    else{
+      navigation.navigate('Sign');
       return response.json();
+    } 
     })
     .then(data => {
-      console.log('Success:', data);
-      setvehicleNum('');
-      setEngineCapacity('');
-      setManuYear('');
+      console.log('Success:', data);   
       
-    })
+          })
     
     .catch(error => {
       console.error('Error:', error);
@@ -243,6 +238,7 @@ export default function Login({ navigation }) {
   return (
     <SafeAreaView style={styles.container2}>
       <View style={styles.container}>
+        
         <Text style={styles. mainText }>REGISTER</Text>
         <Text style={styles.nrText}>
           Please enter your <Text style={styles.specialBlue}>details</Text>
@@ -268,10 +264,7 @@ export default function Login({ navigation }) {
          
           <CylinderNumDropdown data={cylinderNumdata} onSelect={setcylinderNum} />
           <DropdownComponent data={fuelData} onSelect={setFuel} />
-          <VehicleTypeDropdown data={vehicleTypeData} onSelect={setVehicleType} />
-         
-
-
+          <VehicleTypeDropdown data={vehicleTypeData} onSelect={setVehicleType} /> 
 
           <TextInput
             style={styles.inputBox}
@@ -291,6 +284,32 @@ export default function Login({ navigation }) {
         </Text>
       </View>
       <StatusBar style="auto" />
+
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={ModalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText2}>Alert!</Text>
+            <Text style={styles.modelnrrText}>You allready add this vehicle details</Text>
+            <TouchableOpacity
+              style={{ ...styles.openButton, backgroundColor: "red" }}
+              onPress={() => {
+                setModalVisible(false);
+              }}
+            >
+              <Text style={styles.textStyle}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -316,6 +335,7 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     alignItems: 'center',
   },
+  
   inputBox: {
     width: 300,
     height: 40,
@@ -329,14 +349,16 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     fontSize: 16
   },
-  errorText: {
-    color: 'red',
-    marginBottom: 10,
-  },
+ 
   placeholderStyle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#28282B',
+  },
+
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
   },
   mainText: {
     marginTop:20,
@@ -383,4 +405,63 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: 'bold',
   },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "#000000",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    width:"85%",
+    shadowColor: "#000",
+    borderColor: 'red',
+      borderWidth: 2,
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  openButton: { 
+    borderRadius: 20,
+    padding: 10,
+    
+   
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    color: "white",
+   // marginBottom: 15,
+    textAlign: "center",
+    fontWeight: "bold"   
+  },
+  
+  modalText2: {
+    color: 'red',
+   // marginBottom: 15,
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 18,
+   },
+  
+   modelnrrText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    marginBottom: 20,
+    fontSize:13,
+    textAlign:'center'
+  },
+
 });
