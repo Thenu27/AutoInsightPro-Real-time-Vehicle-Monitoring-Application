@@ -2,6 +2,8 @@ package com.autoInsightProDatabase.autoInsightProServer.Controller;
 
 import com.autoInsightProDatabase.autoInsightProServer.model.InputData;
 import com.autoInsightProDatabase.autoInsightProServer.model.InputDataDAO;
+import com.autoInsightProDatabase.autoInsightProServer.model.VehicleSave;
+import com.autoInsightProDatabase.autoInsightProServer.model.VehicleSaveDAO;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -38,10 +40,15 @@ public class InputDataController {
     private int coolant;
     private int wheelAlignment;
 
+//    private int fuelType;
+
     private ArrayList<String> serviceItemNames = new ArrayList<>();
 
     @Autowired
     private InputDataDAO inputDataDAO;
+
+    @Autowired
+    private VehicleSaveDAO vehicleSaveDAO;
 
     private  ArrayList<Integer> predictionArray = new ArrayList<>();
 
@@ -130,10 +137,21 @@ public class InputDataController {
         predictionArray.clear();
         String predictEndpoint = "http://127.0.0.1:5000/predict";
 
+        int fuelType;
+        try {
+            fuelType = FuelType();
+        } catch (NoSuchElementException e) {
+            System.out.println(e.getMessage());
+            return "Failed to get fuel type from the database";
+        }
+
+        System.out.println(fuelType);
+
         Map<String, Integer> requestBody = new HashMap<>();
         int mileageRange = currentMileage - servicedMileage;
         requestBody.put("currentMileage", currentMileage);
         requestBody.put("mileageRange", mileageRange);
+        requestBody.put("fuelType", fuelType);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -186,6 +204,50 @@ public class InputDataController {
     public List<String> getNextServiceItems() {
         return nextServiceNeedItems;
     }
+
+    public int FuelType() throws NoSuchElementException{
+//        int fuelType;
+        String lastVehicle = vehicleSaveDAO.getLastVehicle();
+        if (lastVehicle != null) {
+//            String fuel = lastVehicle.getFuel();
+            if("Diesel".equals(lastVehicle)){
+                return 1;
+            }else{
+                return 0;
+            }
+//            return fuelType;
+        }
+        throw new NoSuchElementException("No vehicles in the database!");
+    }
+
+    @PostMapping("/Fuel-prediction")
+    public String fuelPrediction() {
+        predictionArray.clear();
+//        String predictEndpoint = "http://127.0.0.1:5004/predict";
+
+        int cylinderNum;
+        String vehicleType;
+
+        try {
+            cylinderNum = vehicleSaveDAO.getLastVehicle2();
+            vehicleType = vehicleSaveDAO.getLastVehicle3();
+        } catch (NoSuchElementException e) {
+            System.out.println(e.getMessage());
+            return "Failed to get vehicle information from the database";
+        }
+
+        System.out.println("Cylinder Number: " + cylinderNum);
+        System.out.println("Vehicle Type: " + vehicleType);
+
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("cylinderNum", cylinderNum);
+        requestBody.put("vehicleType", vehicleType);
+
+
+        return "Fuel prediction successful "+cylinderNum+" "+vehicleType;
+    }
+
 
 
 }

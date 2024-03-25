@@ -8,10 +8,6 @@ import org.springframework.boot.context.config.ConfigDataResourceNotFoundExcepti
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
-
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +17,6 @@ public class VehicleSaveController {
 
     @Autowired
     private VehicleSaveDAO vehicleSaveDAO;
-    @Autowired
-   private VehicleSaveRepository vehicleSaveRepository;
-    private int vehicleID;
 
     @GetMapping("/vehicle/get-vehicles")
     public List<VehicleSave> getAllVehicles(){
@@ -31,35 +24,16 @@ public class VehicleSaveController {
     }
 
 
-    /*@DeleteMapping("/vehicle/delete/{id}")
-    public ResponseEntity<String> deleteVehicle(@PathVariable("id") int vehicleID) {
-        // Check if the vehicle exists by ID
-        if (!vehicleSaveRepository.existsById(vehicleID))  {
-            // If the vehicle doesn't exist, return a response with a not found error message
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vehicle with ID " + vehicleID + " not found");
-        }
+  /*  @DeleteMapping("/vehicle/{vehicleNum}")
+    public ResponseEntity<HttpStatus> deleteVehicle(@PathVariable String vehicleNum) {
+        VehicleSave vehicleSave = vehicleSaveDAO.getByVehicleNum(vehicleNum)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with number: " + vehicleNum));
 
-        // If the vehicle exists, proceed with deleting it
-       vehicleSaveRepository.deleteById(vehicleID);
-
-        // Return a success response
-        return ResponseEntity.ok("Vehicle with ID " + vehicleID + " deleted successfully");
+        vehicleSaveDAO.delete(vehicleSave);
+        return ResponseEntity.noContent().build();
     }*/
 
-    @DeleteMapping("/vehicle/delete/{vehicleNum}")
-    public ResponseEntity<String> deleteVehicle(@PathVariable("vehicleNum") String vehicleNum) {
-        // Check if the vehicle exists by vehicle number
-        if (!vehicleSaveRepository.existsByVehicleNum(vehicleNum)) {
-            // If the vehicle doesn't exist, return a response with a not found error message
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vehicle with number " + vehicleNum + " not found");
-        }
 
-        // If the vehicle exists, proceed with deleting it
-        vehicleSaveRepository.deleteByVehicleNum(vehicleNum);
-
-        // Return a success response
-        return ResponseEntity.ok("Vehicle with number " + vehicleNum + " deleted successfully");
-    }
 
 
 
@@ -91,9 +65,5 @@ public class VehicleSaveController {
         // Return a ResponseEntity with the list of success messages and HTTP status OK
         return ResponseEntity.ok(responseMessages);
     }
-
-
-
-
 
 }

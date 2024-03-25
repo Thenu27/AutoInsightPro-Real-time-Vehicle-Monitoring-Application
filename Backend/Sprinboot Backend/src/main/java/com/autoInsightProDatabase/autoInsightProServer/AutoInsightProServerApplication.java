@@ -4,6 +4,7 @@ import com.autoInsightProDatabase.autoInsightProServer.InputDataset.LoadDataset;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.io.IOException;
 
@@ -13,6 +14,8 @@ public class AutoInsightProServerApplication {
 	public static void main(String[] args) {
 
 		SpringApplication.run(AutoInsightProServerApplication.class, args);
+
+
 
 //        LoadDataset loader = new LoadDataset();
         // If LoadDataset constructor prints the loaded data,
