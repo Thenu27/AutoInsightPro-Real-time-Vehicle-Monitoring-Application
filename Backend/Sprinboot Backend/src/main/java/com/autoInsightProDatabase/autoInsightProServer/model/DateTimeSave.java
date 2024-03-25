@@ -16,13 +16,11 @@ public class DateTimeSave {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private int ExpiryId;
 
-
-    private LocalDate licenseDate;
-    private LocalTime licenseTime;
         private LocalDate insuranceDate;
         private LocalTime insuranceTime;
 
-
+        private LocalDate licenseDate;
+        private LocalTime licenseTime;
 
 
         public int getExpiryId() {
@@ -70,11 +68,11 @@ public class DateTimeSave {
         @Override
         public String toString() {
             return "ExpiryDatesSaveDetails{" +
-                    "ExpiryId=" + ExpiryId+
-                    ",licenseDate="+ licenseDate+
-                    ",licenseTime="+ licenseTime+
-                    ",insuranceDate=" + insuranceDate+
-                    ",insuranceTime=" + insuranceTime+
+                    "ExpiryDatesId=" + ExpiryId+
+                    ",License Expiration Date="+ licenseDate+
+                    ",License Exp Selected Time="+ licenseTime+
+                    ",Insurance Expiration Date=" + insuranceDate+
+                    ",Insurance Exp Selected Time=" + insuranceTime+
                     '}';
 
         }
