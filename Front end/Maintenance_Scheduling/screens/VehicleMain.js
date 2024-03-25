@@ -30,19 +30,6 @@ export default function VehicleMain() {
   ];
   const [checkedItems, setCheckedItems] = useState(new Array(parts.length).fill(false));
 
-  // const sendDataToSpringboot = async (dataArray) => {
-  //   try {
-  //     const response = await axios.post('http://localhost:8080/vehicle/maintenance-details', {currentMileage: dataArray[0], lastServiceMileage: dataArray[1]}, {
-  //       headers: {
-  //         'Content-Type': 'application/json'
-  //       }
-  //     });
-  //     console.log(response.data);
-  //   } catch (error) {
-  //     console.error('Error sending data:', error);
-  //   }
-  // };
-
   const [isViewVisible, setIsViewVisible] = useState(true);
 
 
@@ -251,10 +238,6 @@ export default function VehicleMain() {
                       const updatedCheckedItems = [...checkedItems];
                       updatedCheckedItems[index] = !updatedCheckedItems[index];
                       setCheckedItems(updatedCheckedItems);
-                      // const checkedItemsTransfer = checkedItems.map(item => item ? 1 : 0);
-                      // console.log(checkedItemsTransfer);
-                      // sendDataToSpringboot(checkedItemsTransfer);
-                      // handleSavePress;
                     }}
                     title={part}
                   />
