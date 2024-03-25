@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {View, StyleSheet, Text, TouchableOpacity, ScrollView, SafeAreaView} from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, SafeAreaView} from 'react-native';
 import Speedometer, {
   Background,
   Arc,
@@ -8,56 +8,69 @@ import Speedometer, {
   Marks,
   Indicator,
 } from 'react-native-cool-speedometer';
-
-// Utility function to parse and validate numbers
-const parseAndValidate = (value) => {
-  const parsed = parseFloat(value);
-  return Number.isNaN(parsed) ? 0 : parsed;
-};
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 function VehiMoniScreen() {
-  
+  const [serverData, setServerData] = useState(null);
   const [vehicleSpeed, setVehicleSpeed] = useState(0);
   const [fuelLevel, setFuelLevel] = useState(0.5);
   const [rpm, setRpm] = useState(4000);
   const [coolantTemp, setCoolantTemp] = useState(100);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Utility function to parse and validate numbers
+  const parseAndValidate = (value) => {
+    const parsed = parseFloat(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+  
+const fetchDataFromServer = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/check_issues');
+    if (!response.ok) {
+      // If server response is not ok, throw an error with the status
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json(); // Directly parse JSON from the response
+    console.log("Received data:", data); // Log the received data
+    setServerData(data);
+  } catch (error) {
+    console.error('Error fetching or parsing data from server:', error);
+    // Optionally, update the UI to inform the user an error occurred
+  }
+};
+
+  
+  
+  
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://192.168.1.107:8080/csv/rows');
-        const data = await response.json();
+    fetchDataFromServer();
+  }, []);
 
-        if (data && data.length > 0) {
-          // Ensure the interval doesn't exceed the length of the data
-          const intervalId = setInterval(() => {
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      // Replace 'http://192.168.8.102:8080/csv/rows' with your actual endpoint
+      fetch('http://192.168.8.102:8080/csv/rows')
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.length > 0) {
             setCurrentIndex((prevIndex) => {
-              const newIndex = (prevIndex + 1) % data.length; // Cycle through data
+              const newIndex = (prevIndex + 1) % data.length;
               const currentItem = data[newIndex];
-
+  
               setVehicleSpeed(parseAndValidate(currentItem[3]));
-              console.log("speed:",parseAndValidate(currentItem[3]))
-              
               setFuelLevel(parseAndValidate(currentItem[10]));
-              console.log("Fuel:",parseAndValidate(currentItem[10]))
-
               setRpm(parseAndValidate(currentItem[1]));
-
               setCoolantTemp(parseAndValidate(currentItem[5]));
               return newIndex;
             });
-          }, 1000);
+          }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }, 500);
 
-          return () => clearInterval(intervalId); // Clear interval on cleanup
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
+    return () => clearInterval(intervalId);
   }, []);
     return (
         <SafeAreaView style={styles.container}>
@@ -89,7 +102,7 @@ function VehiMoniScreen() {
                <Text>            </Text>Faults Prediction
               </Text>
           </Text>
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
               <View style={styles.row}>   
                   <View style={styles.square}>
                       
@@ -229,56 +242,53 @@ function VehiMoniScreen() {
                   </View>
               </View>
               <View style={styles.row}>
-                  <View style={styles.square}>
-                      <Text 
-                        style={{
-                          fontSize: 15,
-                          color: '#2CB3FF',
-                          bottom: 70,                                 // Add a square for shoe ML result
-                        }}
-                      >
-                      Prediction
-                      </Text>
-                      <Text 
-                        style={{
-                          fontSize: 15,
-                          color: "white",
-                          
-                        }}
-                      >
-                      Showing result...
-                      </Text>
-                      
-                  </View>
-                  <View style={styles.square}>
+                <View style={styles.square}>
                   <Text 
-                        style={{
-                          fontSize: 15,
-                          color: '#2CB3FF',
-                          bottom: 70,                              // Add a square for shoe ML result
-                        }}
-                      >
-                      Prediction
-                      </Text>
-                      <Text 
-                        style={{
-                          fontSize: 15,
-                          color: "white",
-                          
-                        }}
-                      >
-                      Showing result...
-                      </Text>
-                      
-                  </View>
-              </View>
-              </ScrollView>     
+                    style={{
+                      fontSize: 15,
+                      color: '#2CB3FF',
+                      bottom: 70,
+                    }}
+                  >
+                    Prediction
+                  </Text>
+                  <Text 
+                    style={{
+                      fontSize: 15,
+                      color: "white",
+                    }}
+                  >
+                    {serverData ? serverData.coolant_output : "Fetching prediction..."}
+                  </Text>
+                </View>
+                <View style={styles.square}>
+                  <Text 
+                    style={{
+                      fontSize: 15,
+                      color: '#2CB3FF',
+                      bottom: 70,
+                    }}
+                  >
+                    Prediction
+                  </Text>
+                  <Text 
+                    style={{
+                      fontSize: 15,
+                      color: "white",
+                    }}
+                  >
+                    {serverData ? serverData.cooling_system_output : "Fetching prediction..."}
+                  </Text>
+                </View>
+              </View> 
+            </ScrollView>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <View style={styles.btn}>
             <Icon name="home" size={30} color="white" />
             </View>
           </TouchableOpacity>
-         </SafeAreaView>
+          
+        </SafeAreaView>
     );
 }
 
@@ -291,22 +301,23 @@ const styles = StyleSheet.create({
       alignItems: 'center', 
       backgroundColor: "#282828",
       padding: '100',
-      
+        
     },
     row: {
         flexDirection: 'row',
         backgroundColor: "#191919",
     },
     square: {
-        flex: 1, 
-        aspectRatio: 1, 
-        borderWidth: 3,
-        borderColor: '#282828',
-        borderRadius: 15,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: "#191919",
+      flex: 1, 
+      aspectRatio: 1, 
+      borderWidth: 3,
+      borderColor: '#282828',
+      borderRadius: 15,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: "#191919",
     }, 
+    
     btn: {
       backgroundColor: '#2CB3FF',
       marginTop: 10,
@@ -321,9 +332,10 @@ const styles = StyleSheet.create({
       marginBottom:15,
 
     },
+
     text4: {
       color: 'white',
-    }, 
+    }, 
 
     scrollContainer: {
       alignItems: 'center',
@@ -331,6 +343,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       flexGrow:1,
     },
+
   });
 
 
